@@ -17,6 +17,7 @@ class Basket:
     def add(self, issue):
         self.state.put(issue.id, contents=issue)
         self.issues_rev[issue.id] = issue
+        return issue.id
 
 
     def get(self, issue_id):
@@ -28,5 +29,8 @@ class Basket:
             category = self.state.BACKLOG
         else:
             category = self.state.from_name(category)
-        print('category {}'.format(category))
         return self.state.list(category)
+
+
+    def doing(self, issue_id):
+        self.state.move(issue_id, self.state.DOING)

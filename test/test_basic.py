@@ -27,15 +27,32 @@ class TestBasic(unittest.TestCase):
     
     def test_issue_basic(self):
         o = Issue('The first issue')
-        self.b.add(o)
+        v = self.b.add(o)
+        self.assertEqual(v, o.id)
         r = self.b.get(o.id)
         self.assertEqual(r, o)
+
+
+    def test_list(self):
+        o = Issue('The first issue')
+        self.b.add(o)
+        o = Issue('The second issue')
+        self.b.add(o)
+        r = self.b.list('backlog')
+        self.assertEqual(len(r), 2)
 
 
     def test_progress(self):
         o = Issue('The first issue')
         self.b.add(o)
+        o = Issue('The second issue')
+        self.b.add(o)
+        self.b.doing(o.id)
+
         r = self.b.list('backlog')
+        self.assertEqual(len(r), 1)
+
+        r = self.b.list('doing')
         self.assertEqual(len(r), 1)
 
 
