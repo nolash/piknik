@@ -42,6 +42,18 @@ class Basket:
         self.state.move(issue_id, self.state.DOING)
 
 
+    def review(self, issue_id):
+        self.state.move(issue_id, self.state.REVIEW)
+
+
+    def backlog(self, issue_id):
+        self.state.move(issue_id, self.state.BACKLOG)
+
+
+    def finish(self, issue_id):
+        self.state.move(issue_id, self.state.BACKLOG)
+
+
     def advance(self, issue_id):
         if self.state.state(issue_id) & self.limit > 0:
             raise DeadIssue(issue_id)

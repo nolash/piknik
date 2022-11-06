@@ -54,11 +54,11 @@ class TestBasic(unittest.TestCase):
             self.b.advance(o.id)
             
 
-    def test_jump(self):
+    def test_list_jump(self):
         o = Issue('The first issue')
         self.b.add(o)
-        o = Issue('The second issue')
-        self.b.add(o)
+        o_two = Issue('The second issue')
+        self.b.add(o_two)
         self.b.doing(o.id)
 
         r = self.b.list('backlog')
@@ -66,6 +66,19 @@ class TestBasic(unittest.TestCase):
 
         r = self.b.list('doing')
         self.assertEqual(len(r), 1)
+
+
+    def test_jump(self):
+        o = Issue('The first issue')
+        self.b.add(o)
+        self.b.doing(o.id)
+        r = self.b.list('doing')
+        self.b.review(o.id)
+        r = self.b.list('review')
+        self.b.backlog(o.id)
+        r = self.b.list('backlog')
+        self.b.finish(o.id)
+        r = self.b.list('finished')
 
 
     def test_magic_unblock(self):
