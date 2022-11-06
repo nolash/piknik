@@ -73,12 +73,16 @@ class TestBasic(unittest.TestCase):
         self.b.add(o)
         self.b.doing(o.id)
         r = self.b.list('doing')
+        self.assertEquals(len(r), 1)
         self.b.review(o.id)
         r = self.b.list('review')
+        self.assertEquals(len(r), 1)
         self.b.backlog(o.id)
         r = self.b.list('backlog')
+        self.assertEquals(len(r), 1)
         self.b.finish(o.id)
         r = self.b.list('finished')
+        self.assertEquals(len(r), 1)
 
 
     def test_magic_unblock(self):
@@ -89,6 +93,14 @@ class TestBasic(unittest.TestCase):
         self.assertIn(o.id, self.b.blocked())
         self.b.advance(o.id)
         self.assertNotIn(o.id, self.b.blocked())
+
+
+    def test_no_resurrect(self):
+        o = Issue('The first issue')
+        self.b.add(o)
+        self.b.finish(o.id)
+        with self.assertRaises(DeadIssue):
+            self.b.doing(o.id)
 
 
 if __name__ == '__main__':

@@ -6,7 +6,8 @@ from .error import DeadIssue
 class Basket:
 
     def __init__(self, state_factory):
-        self.state = state_factory(default_state='backlog')
+        self.no_resurrect = True
+        self.state = state_factory(default_state='backlog', verifier=self.__check_resurrect)
         self.state.add('pending')
         self.state.add('doing')
         self.state.add('review')
@@ -18,6 +19,12 @@ class Basket:
 
         self.limit = self.state.FINISHED
         self.issues_rev = {}
+
+
+    def __check_resurrect(self, st, k, f, t):
+        if self.no_resurrect:
+            if f & self.state.FINISHED > 0:
+                raise DeadIssue(k)
 
 
     def add(self, issue):
@@ -51,7 +58,7 @@ class Basket:
 
 
     def finish(self, issue_id):
-        self.state.move(issue_id, self.state.BACKLOG)
+        self.state.move(issue_id, self.state.FINISHED)
 
 
     def advance(self, issue_id):
