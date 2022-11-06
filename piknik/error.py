@@ -1,0 +1,2 @@
+class DeadIssue(Exception):
+    pass

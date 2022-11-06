@@ -29,8 +29,8 @@ class TestBasic(unittest.TestCase):
     def test_issue_basic(self):
         o = Issue('The first issue')
         v = self.b.add(o)
-        self.assertEqual(v, o.id)
-        r = self.b.get(o.id)
+        self.assertEqual(v, str(o.id))
+        r = self.b.get(v)
         self.assertEqual(r, o)
 
 
@@ -45,21 +45,21 @@ class TestBasic(unittest.TestCase):
 
     def test_progres(self):
         o = Issue('The first issue')
-        self.b.add(o)
-        self.b.advance(o.id)
-        self.b.advance(o.id)
-        self.b.advance(o.id)
-        self.b.advance(o.id)
+        v = self.b.add(o)
+        self.b.advance(v)
+        self.b.advance(v)
+        self.b.advance(v)
+        self.b.advance(v)
         with self.assertRaises(DeadIssue):
-            self.b.advance(o.id)
+            self.b.advance(v)
             
 
     def test_list_jump(self):
         o = Issue('The first issue')
-        self.b.add(o)
+        v = self.b.add(o)
         o_two = Issue('The second issue')
         self.b.add(o_two)
-        self.b.doing(o.id)
+        self.b.doing(v)
 
         r = self.b.list('backlog')
         self.assertEqual(len(r), 1)
@@ -70,37 +70,37 @@ class TestBasic(unittest.TestCase):
 
     def test_jump(self):
         o = Issue('The first issue')
-        self.b.add(o)
-        self.b.doing(o.id)
+        v = self.b.add(o)
+        self.b.doing(v)
         r = self.b.list('doing')
-        self.assertEquals(len(r), 1)
-        self.b.review(o.id)
+        self.assertEqual(len(r), 1)
+        self.b.review(v)
         r = self.b.list('review')
-        self.assertEquals(len(r), 1)
-        self.b.backlog(o.id)
+        self.assertEqual(len(r), 1)
+        self.b.backlog(v)
         r = self.b.list('backlog')
-        self.assertEquals(len(r), 1)
-        self.b.finish(o.id)
+        self.assertEqual(len(r), 1)
+        self.b.finish(v)
         r = self.b.list('finished')
-        self.assertEquals(len(r), 1)
+        self.assertEqual(len(r), 1)
 
 
     def test_magic_unblock(self):
         o = Issue('The first issue')
-        self.b.add(o)
-        self.b.advance(o.id)
-        self.b.block(o.id)
-        self.assertIn(o.id, self.b.blocked())
-        self.b.advance(o.id)
-        self.assertNotIn(o.id, self.b.blocked())
+        v = self.b.add(o)
+        self.b.advance(v)
+        self.b.block(v)
+        self.assertIn(v, self.b.blocked())
+        self.b.advance(v)
+        self.assertNotIn(v, self.b.blocked())
 
 
     def test_no_resurrect(self):
         o = Issue('The first issue')
-        self.b.add(o)
-        self.b.finish(o.id)
+        v = self.b.add(o)
+        self.b.finish(v)
         with self.assertRaises(DeadIssue):
-            self.b.doing(o.id)
+            self.b.doing(v)
 
 
 if __name__ == '__main__':

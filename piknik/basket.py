@@ -28,9 +28,10 @@ class Basket:
 
 
     def add(self, issue):
-        self.state.put(issue.id, contents=issue)
-        self.issues_rev[issue.id] = issue
-        return issue.id
+        issue_id = str(issue.id)
+        self.state.put(issue_id, contents=str(issue))
+        self.issues_rev[issue_id] = issue
+        return issue_id
 
 
     def get(self, issue_id):
