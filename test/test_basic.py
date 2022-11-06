@@ -1,4 +1,9 @@
 import unittest
+import shep
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logg = logging.getLogger()
 
 from piknik import (
         Basket,
@@ -6,15 +11,32 @@ from piknik import (
         )
 
 
+def debug_out(self, k, v):
+    logg.debug('TRACE: {} {}'.format(k, v))
+
+
+def create_test_state(*args, **kwargs):
+    return shep.State(6, *args, event_callback=debug_out, **kwargs)
+
+
 class TestBasic(unittest.TestCase):
 
-    def test_init(self):
-        b = Basket()
+    def setUp(self):
+        self.b = Basket(create_test_state)
+
+    
+    def test_issue_basic(self):
         o = Issue('The first issue')
-        b.add(o)
-        r = b.get(o.id)
+        self.b.add(o)
+        r = self.b.get(o.id)
         self.assertEqual(r, o)
-        pass
+
+
+    def test_progress(self):
+        o = Issue('The first issue')
+        self.b.add(o)
+        r = self.b.list('backlog')
+        self.assertEqual(len(r), 1)
 
 
 if __name__ == '__main__':
