@@ -1,18 +1,27 @@
+# standard imports
 import unittest
-import shep
 import logging
 import tempfile
 import shutil
 
-logging.basicConfig(level=logging.DEBUG)
-logg = logging.getLogger()
+# external imports
+import shep
 
+# local imports
 from piknik import (
         Basket,
         Issue,
         )
 from piknik.error import DeadIssue
 from piknik.store import FileStoreFactory
+
+# tests imports
+from tests.common import debug_out
+from tests.common import TestStates
+
+
+logging.basicConfig(level=logging.DEBUG)
+logg = logging.getLogger()
 
 
 def debug_out(self, k, v):
@@ -25,7 +34,7 @@ class TestStore(unittest.TestCase):
         self.d = tempfile.mkdtemp()
         logg.debug('tempdir is {}'.format(self.d))
         self.store_factory = FileStoreFactory(self.d)
-        self.b = Basket(self.store_factory.create)
+        self.b = Basket(self.store_factory)
 
 
     def tearDown(self):
@@ -47,7 +56,7 @@ class TestStore(unittest.TestCase):
         
         self.b.advance(va)
 
-        b = Basket(self.store_factory.create)
+        b = Basket(self.store_factory)
         print('get va {}'.format(va))
         r = b.get(va)
 

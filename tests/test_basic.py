@@ -1,29 +1,29 @@
+# standard imports
 import unittest
-import shep
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-logg = logging.getLogger()
+# external imports
+import shep
 
+# local imports
 from piknik import (
         Basket,
         Issue,
         )
 from piknik.error import DeadIssue
 
+# tests imports
+from tests.common import debug_out
+from tests.common import TestStates
 
-def debug_out(self, k, v):
-    logg.debug('TRACE: {} {}'.format(k, v))
-
-
-def create_test_state(*args, **kwargs):
-    return shep.State(6, *args, event_callback=debug_out, **kwargs)
+logging.basicConfig(level=logging.DEBUG)
+logg = logging.getLogger()
 
 
 class TestBasic(unittest.TestCase):
 
     def setUp(self):
-        self.b = Basket(create_test_state)
+        self.b = Basket(TestStates())
 
     
     def test_issue_basic(self):

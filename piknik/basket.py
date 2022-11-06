@@ -8,19 +8,21 @@ class Basket:
 
     def __init__(self, state_factory):
         self.no_resurrect = True
-        self.state = state_factory(default_state='backlog', verifier=self.__check_resurrect)
+        self.state = state_factory.create_states(default_state='backlog', verifier=self.__check_resurrect)
         self.state.add('pending')
         self.state.add('doing')
         self.state.add('review')
         self.state.add('finished')
         self.state.add('blocked')
-
         self.state.alias('doingblocked', self.state.DOING | self.state.BLOCKED)
         self.state.alias('pendingblocked', self.state.PENDING | self.state.BLOCKED)
 
+        self.limit = self.state.FINISHED
+
         self.state.sync()
 
-        self.limit = self.state.FINISHED
+        self.tags = state_factory.create_tags()
+
         self.issues_rev = {}
 
 
@@ -88,3 +90,19 @@ class Basket:
 
     def states(self):
         return self.state.all(pure=True)
+
+
+    def tag(self, issue_id, tag):
+        v = 0
+        try:
+            v = self.tags.from_name(tag)
+        except AttributeError:
+            self.tags.add(tag)
+            v = self.tags.from_name(tag)
+        
+        try:
+            self.tags.put(issue_id)
+        except shep.error.StateItemExists:
+            pass
+
+        self.tags.set(issue_id, v)
