@@ -1,5 +1,7 @@
 import shep
 
+from .error import DeadIssue
+
 
 class Basket:
 
@@ -10,6 +12,10 @@ class Basket:
         self.state.add('review')
         self.state.add('finished')
         self.state.add('blocked')
+
+        self.state.alias('doingblocked', self.state.DOING | self.state.BLOCKED)
+        self.state.alias('pendingblocked', self.state.PENDING | self.state.BLOCKED)
+
         self.limit = self.state.FINISHED
         self.issues_rev = {}
 
@@ -34,3 +40,24 @@ class Basket:
 
     def doing(self, issue_id):
         self.state.move(issue_id, self.state.DOING)
+
+
+    def advance(self, issue_id):
+        if self.state.state(issue_id) & self.limit > 0:
+            raise DeadIssue(issue_id)
+        self.unblock(issue_id)
+        self.state.next(issue_id)
+
+
+    def unblock(self, issue_id):
+        if self.state.state(issue_id) & self.state.BLOCKED > 0:
+            print('unset')
+            self.state.unset(issue_id, self.state.BLOCKED)
+
+
+    def block(self, issue_id):
+        self.state.set(issue_id, self.state.BLOCKED)
+
+
+    def blocked(self):
+        return self.list('blocked')

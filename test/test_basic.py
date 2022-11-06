@@ -9,6 +9,7 @@ from piknik import (
         Basket,
         Issue,
         )
+from piknik.error import DeadIssue
 
 
 def debug_out(self, k, v):
@@ -42,7 +43,18 @@ class TestBasic(unittest.TestCase):
         self.assertEqual(len(r), 2)
 
 
-    def test_progress(self):
+    def test_progres(self):
+        o = Issue('The first issue')
+        self.b.add(o)
+        self.b.advance(o.id)
+        self.b.advance(o.id)
+        self.b.advance(o.id)
+        self.b.advance(o.id)
+        with self.assertRaises(DeadIssue):
+            self.b.advance(o.id)
+            
+
+    def test_jump(self):
         o = Issue('The first issue')
         self.b.add(o)
         o = Issue('The second issue')
@@ -54,6 +66,16 @@ class TestBasic(unittest.TestCase):
 
         r = self.b.list('doing')
         self.assertEqual(len(r), 1)
+
+
+    def test_magic_unblock(self):
+        o = Issue('The first issue')
+        self.b.add(o)
+        self.b.advance(o.id)
+        self.b.block(o.id)
+        self.assertIn(o.id, self.b.blocked())
+        self.b.advance(o.id)
+        self.assertNotIn(o.id, self.b.blocked())
 
 
 if __name__ == '__main__':
