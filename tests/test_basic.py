@@ -59,7 +59,7 @@ class TestBasic(unittest.TestCase):
         v = self.b.add(o)
         o_two = Issue('The second issue')
         self.b.add(o_two)
-        self.b.doing(v)
+        self.b.state_doing(v)
 
         r = self.b.list('backlog')
         self.assertEqual(len(r), 1)
@@ -71,16 +71,16 @@ class TestBasic(unittest.TestCase):
     def test_jump(self):
         o = Issue('The first issue')
         v = self.b.add(o)
-        self.b.doing(v)
+        self.b.state_doing(v)
         r = self.b.list('doing')
         self.assertEqual(len(r), 1)
-        self.b.review(v)
+        self.b.state_review(v)
         r = self.b.list('review')
         self.assertEqual(len(r), 1)
-        self.b.backlog(v)
+        self.b.state_backlog(v)
         r = self.b.list('backlog')
         self.assertEqual(len(r), 1)
-        self.b.finish(v)
+        self.b.state_finish(v)
         r = self.b.list('finished')
         self.assertEqual(len(r), 1)
 
@@ -98,9 +98,14 @@ class TestBasic(unittest.TestCase):
     def test_no_resurrect(self):
         o = Issue('The first issue')
         v = self.b.add(o)
-        self.b.finish(v)
+        self.b.state_finish(v)
         with self.assertRaises(DeadIssue):
-            self.b.doing(v)
+            self.b.state_doing(v)
+
+
+    def test_states_list(self):
+        r = self.b.states()
+        self.assertEqual(len(r), 6)
 
 
 if __name__ == '__main__':

@@ -50,19 +50,19 @@ class Basket:
         return self.state.list(category)
 
 
-    def doing(self, issue_id):
+    def state_doing(self, issue_id):
         self.state.move(issue_id, self.state.DOING)
 
 
-    def review(self, issue_id):
+    def state_review(self, issue_id):
         self.state.move(issue_id, self.state.REVIEW)
 
 
-    def backlog(self, issue_id):
+    def state_backlog(self, issue_id):
         self.state.move(issue_id, self.state.BACKLOG)
 
 
-    def finish(self, issue_id):
+    def state_finish(self, issue_id):
         self.state.move(issue_id, self.state.FINISHED)
 
 
@@ -75,7 +75,6 @@ class Basket:
 
     def unblock(self, issue_id):
         if self.state.state(issue_id) & self.state.BLOCKED > 0:
-            print('unset')
             self.state.unset(issue_id, self.state.BLOCKED)
 
 
@@ -85,3 +84,7 @@ class Basket:
 
     def blocked(self):
         return self.list('blocked')
+
+
+    def states(self):
+        return self.state.all(pure=True)
