@@ -8,7 +8,7 @@ from piknik.store import FileStoreFactory
 
 argp = argparse.ArgumentParser()
 argp.add_argument('-d', type=str, help='Data directory')
-argp.add_argument('title', type=str, help='issue title')
+argp.add_argument('issue_id', type=str, help='Issue id to modify')
 arg = argp.parse_args(sys.argv[1:])
 
 store_factory = FileStoreFactory(arg.d)
@@ -16,9 +16,7 @@ basket = Basket(store_factory.create)
 
 
 def main():
-    o = Issue(arg.title)
-    v = basket.add(o)
-    sys.stdout.write(v + '\n')
+    o = basket.get(arg.issue_id)
 
 
 if __name__ == '__main__':

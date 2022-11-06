@@ -1,6 +1,7 @@
 import shep
 
 from .error import DeadIssue
+from .issue import Issue
 
 
 class Basket:
@@ -17,6 +18,8 @@ class Basket:
         self.state.alias('doingblocked', self.state.DOING | self.state.BLOCKED)
         self.state.alias('pendingblocked', self.state.PENDING | self.state.BLOCKED)
 
+        self.state.sync()
+
         self.limit = self.state.FINISHED
         self.issues_rev = {}
 
@@ -30,12 +33,13 @@ class Basket:
     def add(self, issue):
         issue_id = str(issue.id)
         self.state.put(issue_id, contents=str(issue))
-        self.issues_rev[issue_id] = issue
         return issue_id
 
 
     def get(self, issue_id):
-        return self.issues_rev[issue_id]
+        r = self.state.get(issue_id)
+        o = Issue.from_str(r)
+        return o
 
     
     def list(self, category=None):
