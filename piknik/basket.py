@@ -1,5 +1,7 @@
+# external imports
 import shep
 
+# local imports
 from .error import DeadIssue
 from .issue import Issue
 
@@ -16,12 +18,11 @@ class Basket:
         self.state.add('blocked')
         self.state.alias('doingblocked', self.state.DOING | self.state.BLOCKED)
         self.state.alias('pendingblocked', self.state.PENDING | self.state.BLOCKED)
-
         self.limit = self.state.FINISHED
-
         self.state.sync()
 
-        self.tags = state_factory.create_tags()
+        self.__tags = state_factory.create_tags()
+        self.__tags.sync(ignore_auto=False)
 
         self.issues_rev = {}
 
@@ -95,14 +96,33 @@ class Basket:
     def tag(self, issue_id, tag):
         v = 0
         try:
-            v = self.tags.from_name(tag)
+            v = self.__tags.from_name(tag)
         except AttributeError:
-            self.tags.add(tag)
-            v = self.tags.from_name(tag)
-        
+            self.__tags.add(tag)
+            v = self.__tags.from_name(tag)
+      
+        move = False
         try:
-            self.tags.put(issue_id)
-        except shep.error.StateItemExists:
-            pass
+            r = self.__tags.state(issue_id)
+            if r == 0:
+                move = True
+        except shep.error.StateItemNotFound:
+            self.__tags.put(issue_id)
+            move = True
 
-        self.tags.set(issue_id, v)
+        if move:
+            self.__tags.move(issue_id, v)
+        else:
+            self.__tags.set(issue_id, v)
+
+
+
+    def untag(self, issue_id, tag):
+        v = self.__tags.from_name(tag)
+        self.__tags.unset(issue_id, v, allow_base=True)
+
+
+    def tags(self, issue_id):
+        v = self.__tags.state(issue_id)
+        r = self.__tags.elements(v)
+        return shep.state.split_elements(r)

@@ -12,11 +12,13 @@ argp.add_argument('--block', action='store_true', help='Set issue as blocked')
 argp.add_argument('--unblock', action='store_true', help='Set issue as unblocked')
 argp.add_argument('--finish', action='store_true', help='Set issue as finished (alias of -s finish)')
 argp.add_argument('-s', '--state', type=str, help='Move to state')
+argp.add_argument('-t', '--tag', type=str, action='append', default=[], help='Add tag to issue')
+argp.add_argument('-u', '--untag', type=str, action='append', default=[], help='Remove tag from issue')
 argp.add_argument('issue_id', type=str, help='Issue id to modify')
 arg = argp.parse_args(sys.argv[1:])
 
 store_factory = FileStoreFactory(arg.d)
-basket = Basket(store_factory.create)
+basket = Basket(store_factory)
 
 
 def main():
@@ -32,6 +34,12 @@ def main():
         m(arg.issue_id)
     elif arg.finish:
         basket.state_finish(arg.issue_id)
+
+    for v in arg.tag:
+        basket.tag(arg.issue_id, v)
+
+    for v in arg.untag:
+        basket.untag(arg.issue_id, v)
 
 
 if __name__ == '__main__':

@@ -38,7 +38,7 @@ class TestStore(unittest.TestCase):
 
 
     def tearDown(self):
-        shutil.rmtree(self.d)
+        #shutil.rmtree(self.d)
         pass
 
 
@@ -57,8 +57,25 @@ class TestStore(unittest.TestCase):
         self.b.advance(va)
 
         b = Basket(self.store_factory)
-        print('get va {}'.format(va))
         r = b.get(va)
+
+
+    def test_load_tag(self):
+        o = Issue('foo')
+        va = self.b.add(o)
+        self.b.tag(va, 'inky')
+        self.b.tag(va, 'pinky')
+
+        b = Basket(self.store_factory)
+        r = b.tags(va)
+        self.assertIn('INKY', r)
+        self.assertIn('PINKY', r)
+
+        self.b.untag(va, 'inky')
+        b = Basket(self.store_factory)
+        r = b.tags(va)
+        self.assertNotIn('INKY', r)
+        self.assertIn('PINKY', r)
 
 
 if __name__ == '__main__':

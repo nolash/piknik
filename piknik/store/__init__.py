@@ -19,5 +19,20 @@ class FileStoreFactory:
     
     def create_tags(self, logger=None, default_state=None, verifier=None):
         directory = os.path.join(self.directory, '.tags')
-        factory = SimpleFileStoreFactory(directory).add
-        return PersistedState(factory, 0, logger=logger, check_alias=False, default_state='untagged')
+        os.makedirs(directory, exist_ok=True)
+        factory = SimpleFileStoreFactory(directory)
+        state = PersistedState(factory.add, 0, logger=logger, check_alias=False, default_state='untagged')
+        aliases = []
+        for k in factory.ls():
+            if k == 'UNTAGGED':
+                continue
+            elif k[0] == '_':
+                aliases.append(k)
+                continue
+            state.add(k)
+
+        for v in aliases:
+            s = state.from_elements(v)
+            state.alias(v, s)
+                
+        return state

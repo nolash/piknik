@@ -12,7 +12,7 @@ argp.add_argument('title', type=str, nargs='*', help='issue title')
 arg = argp.parse_args(sys.argv[1:])
 
 store_factory = FileStoreFactory(arg.d)
-basket = Basket(store_factory.create)
+basket = Basket(store_factory)
 
 
 def main():

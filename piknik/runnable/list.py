@@ -13,7 +13,7 @@ argp.add_argument('-r', '--renderer', type=str, default='ini', help='Renderer mo
 arg = argp.parse_args(sys.argv[1:])
 
 store_factory = FileStoreFactory(arg.d)
-basket = Basket(store_factory.create)
+basket = Basket(store_factory)
 
 
 def render_ini(b, r):

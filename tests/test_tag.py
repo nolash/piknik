@@ -35,6 +35,7 @@ class TestBasic(unittest.TestCase):
         v = self.b.add(o)
         self.b.tag(v, 'inky')
         self.b.tag(v, 'pinky')
+        self.b.untag(v, 'pinky')
 
  
 if __name__ == '__main__':
