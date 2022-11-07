@@ -127,4 +127,6 @@ class Basket:
     def tags(self, issue_id):
         v = self.__tags.state(issue_id)
         r = self.__tags.elements(v)
+        if r == 'UNTAGGED':
+            r = '(' + r + ')'
         return shep.state.split_elements(r)
