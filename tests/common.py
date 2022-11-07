@@ -14,7 +14,7 @@ def debug_out(self, k, v):
 class TestStates:
 
     def create_states(*args, **kwargs):
-        return shep.State(7, *args, event_callback=debug_out, **kwargs)
+        return shep.State(6, *args, event_callback=debug_out, **kwargs)
 
 
     def create_tags(*args, **kwargs):
