@@ -37,6 +37,7 @@ class Basket:
     def add(self, issue):
         issue_id = str(issue.id)
         self.state.put(issue_id, contents=str(issue))
+        self.__tags.put(issue_id)
         return issue_id
 
 
@@ -45,7 +46,7 @@ class Basket:
         o = Issue.from_str(r)
         return o
 
-    
+
     def list(self, category=None):
         if category == None:
             category = self.state.BACKLOG
@@ -91,7 +92,7 @@ class Basket:
 
 
     def states(self):
-        return self.state.all(pure=True)
+        return self.state.all(pure=True, bit_order=True)
 
 
     def tag(self, issue_id, tag):
