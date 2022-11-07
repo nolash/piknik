@@ -38,7 +38,7 @@ class TestStore(unittest.TestCase):
 
 
     def tearDown(self):
-        #shutil.rmtree(self.d)
+        shutil.rmtree(self.d)
         pass
 
 
