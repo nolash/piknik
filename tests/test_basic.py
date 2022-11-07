@@ -39,13 +39,14 @@ class TestBasic(unittest.TestCase):
         self.b.add(o)
         o = Issue('The second issue')
         self.b.add(o)
-        r = self.b.list('backlog')
+        r = self.b.list('proposed')
         self.assertEqual(len(r), 2)
 
 
     def test_progres(self):
         o = Issue('The first issue')
         v = self.b.add(o)
+        self.b.advance(v)
         self.b.advance(v)
         self.b.advance(v)
         self.b.advance(v)
@@ -58,8 +59,14 @@ class TestBasic(unittest.TestCase):
         o = Issue('The first issue')
         v = self.b.add(o)
         o_two = Issue('The second issue')
-        self.b.add(o_two)
+        v_two = self.b.add(o_two)
+        self.b.advance(v_two)
+        o_three = Issue('The second issue')
+        self.b.add(o_three)
         self.b.state_doing(v)
+
+        r = self.b.list('proposed')
+        self.assertEqual(len(r), 1)
 
         r = self.b.list('backlog')
         self.assertEqual(len(r), 1)
@@ -89,6 +96,7 @@ class TestBasic(unittest.TestCase):
         o = Issue('The first issue')
         v = self.b.add(o)
         self.b.advance(v)
+        self.b.advance(v)
         self.b.block(v)
         self.assertIn(v, self.b.blocked())
         self.b.advance(v)
@@ -105,7 +113,7 @@ class TestBasic(unittest.TestCase):
 
     def test_states_list(self):
         r = self.b.states()
-        self.assertEqual(len(r), 6)
+        self.assertEqual(len(r), 7)
 
 
 if __name__ == '__main__':

@@ -10,7 +10,8 @@ class Basket:
 
     def __init__(self, state_factory):
         self.no_resurrect = True
-        self.state = state_factory.create_states(default_state='backlog', verifier=self.__check_resurrect)
+        self.state = state_factory.create_states(default_state='proposed', verifier=self.__check_resurrect)
+        self.state.add('backlog')
         self.state.add('pending')
         self.state.add('doing')
         self.state.add('review')

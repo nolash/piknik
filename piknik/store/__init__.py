@@ -14,7 +14,7 @@ class FileStoreFactory:
 
     def create_states(self, logger=None, default_state=None, verifier=None):
         factory = SimpleFileStoreFactory(self.directory).add
-        return PersistedState(factory, 6, logger=logger, verifier=verifier, default_state=default_state)
+        return PersistedState(factory, 7, logger=logger, verifier=verifier, default_state=default_state)
 
     
     def create_tags(self, logger=None, default_state=None, verifier=None):
