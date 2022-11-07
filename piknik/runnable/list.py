@@ -21,10 +21,11 @@ def render_ini(b, r):
     for k in basket.states():
         if k == 'FINISHED' and not arg.show_finished:
             continue
-
         print('[' + k + ']') 
 
         for v in r[k]:
+            if k != 'BLOCKED' and v in r['BLOCKED']:
+                continue
             o = b.get(v)
             t = b.tags(v)
             print('{}\t{}\t{}'.format(o.title, ','.join(t), v))
