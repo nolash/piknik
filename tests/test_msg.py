@@ -12,6 +12,7 @@ from piknik.msg import IssueMessage
 
 # test imports
 from tests.common import TestStates
+from tests.common import TestMsgStore
 
 logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
@@ -21,7 +22,8 @@ logg = logging.getLogger()
 class TestMsg(unittest.TestCase):
 
     def setUp(self):
-        self.b = Basket(TestStates())
+        self.store = TestStates()
+        self.b = Basket(self.store)
 
 
     def test_basic(self):
@@ -55,6 +57,7 @@ class TestMsg(unittest.TestCase):
         m = self.b.msg(v, 's:baz')
         m = self.b.msg(v, 'f:tests/two.bin')
         print(m)
+
 
 
 if __name__ == '__main__':

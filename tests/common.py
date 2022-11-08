@@ -29,13 +29,13 @@ class TestMsgStore:
 
 class TestStates:
 
-    def create_states(*args, **kwargs):
+    def create_states(self, *args, **kwargs):
         return shep.State(6, *args, event_callback=debug_out, **kwargs)
 
 
-    def create_tags(*args, **kwargs):
+    def create_tags(self, *args, **kwargs):
         return shep.State(0, *args, event_callback=debug_out, check_alias=False, **kwargs)
 
 
-    def create_messages(*args):
+    def create_messages(self, *args):
         return TestMsgStore()

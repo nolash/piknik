@@ -84,5 +84,16 @@ class TestStore(unittest.TestCase):
         m = self.b.msg(issue_id, 'bar')
 
 
+
+    def test_msg_resume(self):
+        o = Issue('foo')
+        v = self.b.add(o)
+        m = self.b.msg(v, 's:bar')
+
+        b = Basket(self.store_factory)
+        m = b.msg(v, 's:baz')
+        print(m)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -13,10 +13,9 @@ from email.policy import Compat32
 logg = logging.getLogger(__name__)
 
 
-class IssueMessage: #(Message):
+class IssueMessage:
 
     def __init__(self, issue):
-        #super(IssueMessage, self).__init__()
         self.__m = Message()
 
         self.__m.add_header('Subject', issue.title)

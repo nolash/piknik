@@ -23,7 +23,7 @@ class MsgDir(HexDir):
     def get(self, k):
         fp = self.to_filepath(k)
         f = None
-        f = open(fp, 'r')
+        f = open(fp, 'rb')
         r = f.read()
         f.close()
         return r
