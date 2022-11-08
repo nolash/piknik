@@ -27,7 +27,6 @@ class TestMsg(unittest.TestCase):
     def test_basic(self):
         o = Issue('foo')
         v = IssueMessage(o)
-        self.assertEqual(v.get('Subject'), 'foo')
 
 
     def test_single_content(self):
@@ -40,6 +39,21 @@ class TestMsg(unittest.TestCase):
         o = Issue('foo')
         v = self.b.add(o)
         m = self.b.msg(v, 's:foo', 's:bar', 's:baz')
+
+
+    def test_single_file_content(self):
+        o = Issue('foo')
+        v = self.b.add(o)
+        m = self.b.msg(v, 'f:tests/one.png')
+
+
+    def test_mixed_content(self):
+        o = Issue('foo')
+        v = self.b.add(o)
+        m = self.b.msg(v, 's:bar')
+        m = self.b.msg(v, 'f:tests/one.png')
+        m = self.b.msg(v, 's:baz')
+        m = self.b.msg(v, 'f:tests/two.bin')
         print(m)
 
 

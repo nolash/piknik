@@ -1,6 +1,8 @@
 # standard imports
 import logging
 import uuid
+import mimetypes
+from base64 import b64encode
 
 #from email.message import EmailMessage as Message
 from email.message import Message
@@ -11,20 +13,24 @@ from email.policy import Compat32
 logg = logging.getLogger(__name__)
 
 
-class IssueMessage(Message):
+class IssueMessage: #(Message):
 
     def __init__(self, issue):
-        super(IssueMessage, self).__init__()
-        self.add_header('Subject', issue.title)
-        self.add_header('X-Piknik-Id', issue.id)
-        self.set_payload(None)
-        self.set_type('multipart/mixed')
-        self.set_boundary(str(uuid.uuid4()))
+        #super(IssueMessage, self).__init__()
+        self.__m = Message()
+
+        self.__m.add_header('Subject', issue.title)
+        self.__m.add_header('X-Piknik-Id', issue.id)
+        self.__m.set_payload(None)
+        self.__m.set_type('multipart/mixed')
+        self.__m.set_boundary(str(uuid.uuid4()))
 
 
-    @staticmethod
-    def from_string(self, v):
-        return message_from_string(v)
+    @classmethod
+    def parse(cls, issue, v):
+        o = cls(issue)
+        o.__m = message_from_string(v)
+        return o
 
 
     def add_text(self, m, v):
@@ -32,6 +38,28 @@ class IssueMessage(Message):
         p.add_header('Content-Transfer-Encoding', 'QUOTED-PRINTABLE')
         p.set_charset('UTF-8')
         p.set_payload(str(v))
+        m.attach(p)
+
+
+    def detect_file(self, v):
+        return mimetypes.guess_type(v)
+
+
+    def add_file(self, m, v):
+        mime_type = self.detect_file(v)
+
+        p = Message()
+        p.set_type(mime_type[0])
+        if mime_type[1] != None:
+            p.set_charset(mime-type[1])
+        p.add_header('Content-Transfer-Encoding', 'BASE64')
+
+        f = open(v, 'rb')
+        r = f.read()
+        f.close()
+        r = b64encode(r)
+
+        p.set_payload(str(r))
         m.attach(p)
 
 
@@ -51,4 +79,16 @@ class IssueMessage(Message):
                 self.add_file(m, v)
             elif p == 's:':
                 self.add_text(m, v)
-        self.attach(m)
+        self.__m.attach(m)
+
+
+    def as_string(self, **kwargs):
+        return self.__m.as_string(**kwargs)
+
+
+    def as_bytes(self, **kwargs):
+        return self.__m.as_bytes(**kwargs)
+
+
+    def __str__(self):
+        return self.as_string()
