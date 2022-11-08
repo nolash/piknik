@@ -1,9 +1,15 @@
+# standard imports
+import logging
+
 # external imports
 import shep
 
 # local imports
 from .error import DeadIssue
 from .issue import Issue
+from .msg import IssueMessage
+
+logg = logging.getLogger(__name__)
 
 
 class Basket:
@@ -24,6 +30,8 @@ class Basket:
 
         self.__tags = state_factory.create_tags()
         self.__tags.sync(ignore_auto=False)
+
+        self.__msg = state_factory.create_messages()
 
         self.issues_rev = {}
 
@@ -130,3 +138,23 @@ class Basket:
         if r == 'UNTAGGED':
             r = '(' + r + ')'
         return shep.state.split_elements(r)
+
+
+    def __get_msg(self, issue_id):
+        try:
+            v = self.__msg.get(issue_id)
+            return IssueMessage.from_string(v)
+        except FileNotFoundError:
+            logg.debug('instantiating new message log for {}'.format(issue_id))
+
+        v = self.state.get(issue_id)
+        o = Issue.from_str(v)
+        return IssueMessage(o)
+
+
+    def msg(self, issue_id, *args):
+        m = self.__get_msg(issue_id)
+        m.add(*args)
+        ms = m.as_bytes()
+        self.__msg.put(issue_id, ms)
+        return m

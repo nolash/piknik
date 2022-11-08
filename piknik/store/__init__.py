@@ -1,7 +1,40 @@
 import os
 
+# external imports
 from shep.store.file import SimpleFileStoreFactory
 from shep.persist import PersistedState
+from leveldir.hex import HexDir
+
+
+def default_formatter(hx):
+    return hx.lower()
+
+
+class MsgDir(HexDir):
+
+    def __init__(self, root_path):
+        super(MsgDir, self).__init__(root_path, 36, levels=2, prefix_length=0, formatter=default_formatter)
+
+
+    def __check(self, key, content, prefix):
+        pass
+
+
+    def get(self, k):
+        fp = self.to_filepath(k)
+        f = None
+        f = open(fp, 'r')
+        r = f.read()
+        f.close()
+        return r
+
+
+    def key_to_string(self, k):
+        return k.decode('utf-8')
+
+
+    def put(self, k, v):
+        return self.add(k.encode('utf-8'), v)
 
 
 class FileStoreFactory:
@@ -36,3 +69,8 @@ class FileStoreFactory:
             state.alias(v, s)
                 
         return state
+
+
+    def create_messages(self):
+        d = os.path.join(self.directory, '.msg')
+        return MsgDir(d)

@@ -78,5 +78,11 @@ class TestStore(unittest.TestCase):
         self.assertIn('PINKY', r)
 
 
+    def test_msg_putget(self):
+        o = Issue('foo')
+        issue_id = self.b.add(o)
+        m = self.b.msg(issue_id, 'bar')
+
+
 if __name__ == '__main__':
     unittest.main()

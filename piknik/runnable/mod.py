@@ -14,6 +14,8 @@ argp.add_argument('--finish', action='store_true', help='Set issue as finished (
 argp.add_argument('-s', '--state', type=str, help='Move to state')
 argp.add_argument('-t', '--tag', type=str, action='append', default=[], help='Add tag to issue')
 argp.add_argument('-u', '--untag', type=str, action='append', default=[], help='Remove tag from issue')
+argp.add_argument('-f', '--file', type=str, action='append', help='Add message file part')
+argp.add_argument('-m', '--message', type=str, action='append', default=[], help='Add message text part')
 argp.add_argument('issue_id', type=str, help='Issue id to modify')
 arg = argp.parse_args(sys.argv[1:])
 
