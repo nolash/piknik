@@ -1,0 +1,9 @@
+- 0.1.1
+	* MIME message log for issues
+	? Make message settable with mod command
+- 0.1.0
+	* Tools for:
+		- Add issue
+		- Modify issue states and tags
+		- List all issues
+		- Show single issue data
