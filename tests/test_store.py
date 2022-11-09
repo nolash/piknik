@@ -42,11 +42,13 @@ class TestStore(unittest.TestCase):
         pass
 
 
+    # TODO: assert
     def test_basic(self):
         o = Issue('foo')
         v = self.b.add(o)
 
 
+    # TODO: assert
     def test_load(self):
         o = Issue('foo')
         va = self.b.add(o)
@@ -78,12 +80,14 @@ class TestStore(unittest.TestCase):
         self.assertIn('PINKY', r)
 
 
+    # TODO: assert
     def test_msg_putget(self):
         o = Issue('foo')
         issue_id = self.b.add(o)
         m = self.b.msg(issue_id, 's:bar')
 
 
+    # TODO: assert
     def test_msg_resume(self):
         o = Issue('foo')
         v = self.b.add(o)

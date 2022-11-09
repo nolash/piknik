@@ -83,9 +83,9 @@ class IssueMessage:
                 r = self.from_file(v)
             elif p == 's:':
                 r = self.from_text(v)
-            if wrapper:
-                r = wrapper(r)
             m.attach(r)
+        if wrapper:
+            m = wrapper(m)
         self.__m.attach(m)
 
 

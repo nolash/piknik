@@ -40,14 +40,25 @@ class TestMsg(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.gpg_dir)
 
+
     def test_wrap_sig(self):
         m = Message()
-        m.set_charset('utf-8')
-        m.set_payload('foo')
+        m.set_type('multipart/mixed')
+        m.set_payload(None)
+
+        one = Message()
+        one.set_charset('utf-8')
+        one.set_payload('foo')
+        m.attach(one)
+
+        two = Message()
+        two.set_charset('utf-8')
+        two.set_payload('bar')
+        m.attach(two)
+
         v = m.as_string()
         m = self.crypto.sign(m, passphrase='foo')
 
-        print('msg {}'.format(v))
         for p in m.walk():
             if p.get_content_type() == 'application/pgp-signature':
                 sig = p.get_payload()
@@ -62,13 +73,12 @@ class TestMsg(unittest.TestCase):
                 break
 
 
+    # TODO: assert
     def test_wrap_basket_sig(self):
         o = Issue('foo')
         v = self.b.add(o)
         r = self.b.msg(v, 's:foo', 's:bar')
         print(r)
-
-
 
 
 if __name__ == '__main__':

@@ -17,6 +17,7 @@ class PGPSigner:
         m = Message()
         v = msg.as_string()
         m.set_type('multipart/relative')
+        m.add_header('X-Piknik-Envelope', 'pgp')
         ms = Message()
         ms.set_type('application/pgp-signature')
         fn = '{}.asc'.format(msg.get('X-Piknik-Msg-Id'))
@@ -29,3 +30,7 @@ class PGPSigner:
         m.attach(ms)
 
         return m
+
+
+    def verify(self, msg, sig): # msg = IssueMessage object
+        pass 
