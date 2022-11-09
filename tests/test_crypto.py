@@ -56,21 +56,55 @@ class TestMsg(unittest.TestCase):
         two.set_payload('bar')
         m.attach(two)
 
-        v = m.as_string()
         m = self.crypto.sign(m, passphrase='foo')
+        self.crypto.verify(m)
 
-        for p in m.walk():
-            if p.get_content_type() == 'application/pgp-signature':
-                sig = p.get_payload()
-                (fd, fp) = tempfile.mkstemp()
-                f = os.fdopen(fd, 'w')
-                f.write(sig)
-                f.close()
-                r = self.gpg.verify_data(fp, v.encode('utf-8'))
-                os.unlink(fp)
-                self.assertIsNone(r.key_status)
-                self.assertEqual(r.status, 'signature valid')
-                break
+
+    def test_wrap_double_sig(self):
+        mp = Message()
+        mp.set_type('multipart/related')
+        mp.set_payload(None)
+
+        m = Message()
+        m.add_header('X-Piknik-Msg-Id', 'foo')
+        m.set_type('multipart/mixed')
+        m.set_payload(None)
+
+        one = Message()
+        one.set_charset('utf-8')
+        one.set_payload('inky')
+        m.attach(one)
+
+        two = Message()
+        two.set_charset('utf-8')
+        two.set_payload('pinky')
+        m.attach(two)
+
+        m = self.crypto.sign(m, passphrase='foo')
+        mp.attach(m)
+
+        m = Message()
+        m.add_header('X-Piknik-Msg-Id', 'bar')
+        m.set_type('multipart/mixed')
+        m.set_payload(None)
+
+        one = Message()
+        one.set_charset('utf-8')
+        one.set_payload('blinky')
+        m.attach(one)
+
+        two = Message()
+        two.set_charset('utf-8')
+        two.set_payload('clyde')
+        m.attach(two)
+
+        m = self.crypto.sign(m, passphrase='foo')
+        mp.attach(m)
+
+        r = self.crypto.verify(mp)
+        self.assertEqual(len(r), 2)
+        self.assertIn('foo', r)
+        self.assertIn('bar', r)
 
 
     # TODO: assert
@@ -79,6 +113,13 @@ class TestMsg(unittest.TestCase):
         v = self.b.add(o)
         r = self.b.msg(v, 's:foo', 's:bar')
         print(r)
+
+
+    def test_wrap_basket_sig(self):
+        o = Issue('foo')
+        v = self.b.add(o)
+        r = self.b.msg(v, 's:foo', 's:bar')
+
 
 
 if __name__ == '__main__':
