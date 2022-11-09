@@ -29,9 +29,12 @@ class IssueMessage:
 
 
     @classmethod
-    def parse(cls, issue, v):
+    def parse(cls, issue, v, verifier=None):
         o = cls(issue)
-        o.__m = message_from_string(v)
+        m = message_from_string(v)
+        if verifier != None:
+            verifier(m)
+        o.__m
         return o
 
 

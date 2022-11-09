@@ -1,8 +1,10 @@
 # standard imports
 import logging
+import tempfile
 
 # external imports
 import shep
+import gnupg
 
 logg = logging.getLogger()
 
@@ -39,3 +41,13 @@ class TestStates:
 
     def create_messages(self, *args):
         return TestMsgStore()
+
+
+def pgp_setup():
+    from piknik.crypto import PGPSigner
+    gpg_dir = tempfile.mkdtemp()
+    gpg = gnupg.GPG(gnupghome=gpg_dir)
+    gpg_input = gpg.gen_key_input(key_type='RSA', key_length=1024, passphrase='foo')
+    gpg_key = gpg.gen_key(gpg_input)
+    crypto = PGPSigner(gpg_dir, default_key=gpg_key.fingerprint, passphrase='foo')
+    return (crypto, gpg, gpg_dir,)
