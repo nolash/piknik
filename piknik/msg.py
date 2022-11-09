@@ -24,7 +24,7 @@ class IssueMessage:
         self.__m.add_header('X-Piknik-Id', issue.id)
         self.__m.add_header('Date', formatdate(time.time()))
         self.__m.set_payload(None)
-        self.__m.set_type('multipart/mixed')
+        self.__m.set_type('multipart/relative')
         self.__m.set_boundary(str(uuid.uuid4()))
 
 
