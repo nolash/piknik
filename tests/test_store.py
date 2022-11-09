@@ -81,8 +81,7 @@ class TestStore(unittest.TestCase):
     def test_msg_putget(self):
         o = Issue('foo')
         issue_id = self.b.add(o)
-        m = self.b.msg(issue_id, 'bar')
-
+        m = self.b.msg(issue_id, 's:bar')
 
 
     def test_msg_resume(self):

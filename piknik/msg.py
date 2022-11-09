@@ -35,34 +35,34 @@ class IssueMessage:
         return o
 
 
-    def add_text(self, m, v):
-        p = Message()
-        p.add_header('Content-Transfer-Encoding', 'QUOTED-PRINTABLE')
-        p.set_charset('UTF-8')
-        p.set_payload(str(v))
-        m.attach(p)
+    def from_text(self, v):
+        m = Message()
+        m.add_header('Content-Transfer-Encoding', 'QUOTED-PRINTABLE')
+        m.set_charset('UTF-8')
+        m.set_payload(str(v))
+        return m
 
 
     def detect_file(self, v):
         return mimetypes.guess_type(v)
 
 
-    def add_file(self, m, v):
+    def from_file(self, v):
         mime_type = self.detect_file(v)
 
-        p = Message()
-        p.set_type(mime_type[0])
+        m = Message()
+        m.set_type(mime_type[0])
         if mime_type[1] != None:
-            p.set_charset(mime-type[1])
-        p.add_header('Content-Transfer-Encoding', 'BASE64')
+            m.set_charset(mime-type[1])
+        m.add_header('Content-Transfer-Encoding', 'BASE64')
 
         f = open(v, 'rb')
         r = f.read()
         f.close()
         r = b64encode(r)
+        m.set_payload(str(r))
 
-        p.set_payload(str(r))
-        m.attach(p)
+        return m
 
 
     def add(self, *args, related_id=None, wrapper=None):
@@ -78,12 +78,14 @@ class IssueMessage:
         for a in args:
             p = a[:2]
             v = a[2:]
+            r = None
             if p == 'f:':
-                self.add_file(m, v)
+                r = self.from_file(v)
             elif p == 's:':
-                self.add_text(m, v)
-        if wrapper:
-            m = wrapper(m)
+                r = self.from_text(v)
+            if wrapper:
+                r = wrapper(r)
+            m.attach(r)
         self.__m.attach(m)
 
 

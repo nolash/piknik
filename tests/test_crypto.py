@@ -30,9 +30,9 @@ class TestMsg(unittest.TestCase):
     def setUp(self):
         self.store = TestStates()
         self.gpg_dir = tempfile.mkdtemp()
-        gpg = gnupg.GPG(gnupghome=self.gpg_dir)
-        gpg_input = gpg.gen_key_input(key_type='RSA', key_length=1024, passphrase='foo')
-        gpg_key = gpg.gen_key(gpg_input)
+        self.gpg = gnupg.GPG(gnupghome=self.gpg_dir)
+        gpg_input = self.gpg.gen_key_input(key_type='RSA', key_length=1024, passphrase='foo')
+        gpg_key = self.gpg.gen_key(gpg_input)
         self.crypto = PGPSigner(self.gpg_dir, default_key=gpg_key.fingerprint, passphrase='foo')
         self.b = Basket(self.store, message_wrapper=self.crypto.sign)
 
@@ -44,8 +44,22 @@ class TestMsg(unittest.TestCase):
         m = Message()
         m.set_charset('utf-8')
         m.set_payload('foo')
-        r = self.crypto.sign(m, passphrase='foo')
-        print(str(r))
+        v = m.as_string()
+        m = self.crypto.sign(m, passphrase='foo')
+
+        print('msg {}'.format(v))
+        for p in m.walk():
+            if p.get_content_type() == 'application/pgp-signature':
+                sig = p.get_payload()
+                (fd, fp) = tempfile.mkstemp()
+                f = os.fdopen(fd, 'w')
+                f.write(sig)
+                f.close()
+                r = self.gpg.verify_data(fp, v.encode('utf-8'))
+                os.unlink(fp)
+                self.assertIsNone(r.key_status)
+                self.assertEqual(r.status, 'signature valid')
+                break
 
 
     def test_wrap_basket_sig(self):
