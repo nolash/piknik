@@ -3,11 +3,13 @@ import logging
 import uuid
 import mimetypes
 from base64 import b64encode
+import time
 
 #from email.message import EmailMessage as Message
 from email.message import Message
 from email import message_from_string
 from email.policy import Compat32
+from email.utils import formatdate
 
 
 logg = logging.getLogger(__name__)
@@ -20,6 +22,7 @@ class IssueMessage:
 
         self.__m.add_header('Subject', issue.title)
         self.__m.add_header('X-Piknik-Id', issue.id)
+        self.__m.add_header('Date', formatdate(time.time()))
         self.__m.set_payload(None)
         self.__m.set_type('multipart/mixed')
         self.__m.set_boundary(str(uuid.uuid4()))
@@ -62,10 +65,11 @@ class IssueMessage:
         m.attach(p)
 
 
-    def add(self, *args, related_id=None):
+    def add(self, *args, related_id=None, wrapper=None):
         m_id = uuid.uuid4()
         m = Message()
         m.add_header('X-Piknik-Msg-Id', str(m_id))
+        m.add_header('Date', formatdate(time.time()))
         if related_id != None:
             m.add_header('In-Reply-To', related_id)
         m.set_payload(None)
@@ -78,6 +82,8 @@ class IssueMessage:
                 self.add_file(m, v)
             elif p == 's:':
                 self.add_text(m, v)
+        if wrapper:
+            m = wrapper(m)
         self.__m.attach(m)
 
 

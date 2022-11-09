@@ -2,6 +2,7 @@
 import unittest
 import logging
 import json
+from email.message import Message
 
 # local imports
 from piknik import (
@@ -17,6 +18,13 @@ from tests.common import TestMsgStore
 logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
 
+
+def test_wrapper(p):
+    m = Message()
+    m.add_header('Foo', 'bar')
+    m.set_type('multipart/relative')
+    m.set_payload(p)
+    return m
 
 
 class TestMsg(unittest.TestCase):
@@ -56,8 +64,14 @@ class TestMsg(unittest.TestCase):
         m = self.b.msg(v, 'f:tests/one.png')
         m = self.b.msg(v, 's:baz')
         m = self.b.msg(v, 'f:tests/two.bin')
-        print(m)
 
+
+    def test_wrapper(self):
+        b = Basket(self.store, message_wrapper=test_wrapper)
+        o = Issue('bar')
+        v = b.add(o)
+        m = b.msg(v, 's:foo')
+        print(m)
 
 
 if __name__ == '__main__':

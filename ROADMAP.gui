@@ -1,0 +1,5 @@
+GUI is simple browser javascript.
+
+Initial implementation should use file:/// scheme and be read-only.
+
+GUI needs to be separate repo.

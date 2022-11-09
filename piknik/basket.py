@@ -14,7 +14,7 @@ logg = logging.getLogger(__name__)
 
 class Basket:
 
-    def __init__(self, state_factory):
+    def __init__(self, state_factory, message_wrapper=None):
         self.no_resurrect = True
         self.state = state_factory.create_states(default_state='proposed', verifier=self.__check_resurrect)
         self.state.add('backlog')
@@ -32,6 +32,7 @@ class Basket:
         self.__tags.sync(ignore_auto=False)
 
         self.__msg = state_factory.create_messages()
+        self.__msg_wrap = message_wrapper
 
         self.issues_rev = {}
 
@@ -142,6 +143,7 @@ class Basket:
 
     def __get_msg(self, issue_id):
         r = self.state.get(issue_id)
+        print('issue {}'.format(r))
         o = Issue.from_str(r)
         try:
             v = self.__msg.get(issue_id)
@@ -154,7 +156,7 @@ class Basket:
 
     def msg(self, issue_id, *args):
         m = self.__get_msg(issue_id)
-        m.add(*args)
+        m.add(*args, wrapper=self.__msg_wrap)
         ms = m.as_bytes()
         self.__msg.put(issue_id, ms)
         return m
