@@ -58,6 +58,7 @@ class IssueMessage:
         if mime_type[1] != None:
             m.set_charset(mime-type[1])
         m.add_header('Content-Transfer-Encoding', 'BASE64')
+        m.add_header('Content-Disposition', 'attachment; filename="{}"'.format(v))
 
         f = open(v, 'rb')
         r = f.read()
