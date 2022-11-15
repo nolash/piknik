@@ -27,22 +27,5 @@ class TestIssue(unittest.TestCase):
         self.assertTrue(o == r)
 
 
-
-    def test_assigned_from_str(self):
-        o = Issue('foo')
-        alice_fp = 'F3FAF668E82EF5124D5187BAEF26F4682343F692'
-        alice = Identity(alice_fp)
-        bob_fp = 'F645E047EE5BC4E2824C94DB42DC91CFA8ABA02B'
-        bob = Identity(bob_fp)
-        o.assign(alice)
-        o.assign(bob)
-        v = str(o)
-        r = Issue.from_str(v)
-        self.assertTrue(o == r)
-
-        check = r.get_assigned()
-        self.assertEqual(len(check), 2)
-
-
 if __name__ == '__main__':
     unittest.main()

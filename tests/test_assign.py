@@ -25,6 +25,15 @@ class TestAssign(unittest.TestCase):
         self.assertEqual(r, check)
 
 
+    def test_identity_equality(self):
+        one = Identity(self.alice)
+        two = Identity(self.alice)
+        self.assertTrue(one == two)
+        
+        three = Identity(self.bob)
+        self.assertFalse(one == three)
+
+
     def test_identity_load(self):
         o = Issue('foo')
         alice = Identity(self.alice)
@@ -36,6 +45,35 @@ class TestAssign(unittest.TestCase):
         self.assertEqual(r[0][0], alice)
         self.assertEqual(r[1][0], bob)
         self.assertGreater(r[1][1], r[0][1])
+
+
+    def test_assigned_from_str(self):
+        o = Issue('foo')
+        alice = Identity(self.alice)
+        bob = Identity(self.bob)
+        o.assign(alice)
+        o.assign(bob)
+        v = str(o)
+        r = Issue.from_str(v)
+        self.assertTrue(o == r)
+
+        check = r.get_assigned()
+        self.assertEqual(len(check), 2)
+
+
+    def test_set_owner(self):
+        o = Issue('foo')
+        alice = Identity(self.alice)
+        bob = Identity(self.bob)
+        o.assign(alice)
+        o.assign(bob)
+
+        r = o.owner()
+        self.assertEqual(r, alice)
+
+        o.set_owner(bob)
+        r = o.owner()
+        self.assertEqual(r, bob)
 
 
 if __name__ == '__main__':

@@ -16,6 +16,7 @@ class Issue:
         self.title = title
         self.assigned = []
         self.assigned_time = []
+        self.owner_idx = 0
 
 
     @staticmethod
@@ -41,6 +42,28 @@ class Issue:
 
     def get_assigned(self):
         return list(zip(self.assigned, self.assigned_time))
+
+
+    def owner(self):
+        try:
+            return self.assigned[self.owner_idx]
+        except Keyerror:
+            pass
+
+        raise NoAssignmentsError()
+
+
+    def set_owner(self, identity):
+        r = self.owner()
+        if identity == r:
+            return False
+
+        for i, v in enumerate(self.assigned):
+            if v == identity:
+                self.owner_idx = i
+                return True
+
+        raise UnknownIdentityError(identity)
         
 
     def __str__(self):

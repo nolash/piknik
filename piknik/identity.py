@@ -10,9 +10,13 @@ class Identity:
     def id(self):
         return self.__id.hex()
 
+
+    def __eq__(self, other):
+        return other.id() == self.id()
+
        
     def uri(self):
         h = hashlib.sha256()
-        h.update(self.id)
+        h.update(self.__id)
         z = h.digest()
         return 'sha256:' + z.hex()
