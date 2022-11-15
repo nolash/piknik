@@ -6,6 +6,7 @@ import json
 # local imports
 from piknik import Issue
 from piknik.identity import Identity
+from piknik.error import UnknownIdentityError
 
 logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
@@ -47,7 +48,7 @@ class TestAssign(unittest.TestCase):
         self.assertGreater(r[1][1], r[0][1])
 
 
-    def test_assigned_from_str(self):
+    def test_identity_assigned_from_str(self):
         o = Issue('foo')
         alice = Identity(self.alice)
         bob = Identity(self.bob)
@@ -61,7 +62,7 @@ class TestAssign(unittest.TestCase):
         self.assertEqual(len(check), 2)
 
 
-    def test_set_owner(self):
+    def test_identity_set_owner(self):
         o = Issue('foo')
         alice = Identity(self.alice)
         bob = Identity(self.bob)
@@ -74,6 +75,28 @@ class TestAssign(unittest.TestCase):
         o.set_owner(bob)
         r = o.owner()
         self.assertEqual(r, bob)
+
+
+    def test_identity_unassign(self):
+        o = Issue('foo')
+        alice = Identity(self.alice)
+        bob = Identity(self.bob)
+        o.assign(alice)
+        o.assign(bob)
+   
+        o.unassign(alice)
+        r = o.get_assigned()
+        self.assertEqual(len(r), 1)
+
+        r = o.owner()
+        self.assertEqual(r, bob)
+
+        with self.assertRaises(UnknownIdentityError):
+            o.unassign(alice)
+
+        o.unassign(bob)
+        with self.assertRaises(UnknownIdentityError):
+            o.owner()
 
 
 if __name__ == '__main__':

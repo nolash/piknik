@@ -5,6 +5,8 @@ import datetime
 
 # local imports
 from piknik.identity import Identity
+from piknik.error import UnknownIdentityError
+from piknik.error import AlreadyAssignedError
 
 
 class Issue:
@@ -44,13 +46,23 @@ class Issue:
         return list(zip(self.assigned, self.assigned_time))
 
 
+    def unassign(self, identity):
+        for i, v in enumerate(self.assigned):
+            if v == identity:
+                self.assigned.remove(v)
+                if i == self.owner_idx:
+                    self.owner_idx = 0
+                return True
+        raise UnknownIdentityError(identity)
+
+
     def owner(self):
         try:
             return self.assigned[self.owner_idx]
-        except Keyerror:
+        except IndexError:
             pass
 
-        raise NoAssignmentsError()
+        raise UnknownIdentityError
 
 
     def set_owner(self, identity):
