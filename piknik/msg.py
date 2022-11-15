@@ -34,7 +34,7 @@ class IssueMessage:
         m = message_from_string(v)
         if verifier != None:
             verifier(m)
-        o.__m
+        o.__m = m
         return o
 
 

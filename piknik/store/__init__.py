@@ -1,4 +1,6 @@
+# standard imports
 import os
+import uuid
 
 # external imports
 from shep.store.file import SimpleFileStoreFactory
@@ -13,7 +15,7 @@ def default_formatter(hx):
 class MsgDir(HexDir):
 
     def __init__(self, root_path):
-        super(MsgDir, self).__init__(root_path, 36, levels=2, prefix_length=0, formatter=default_formatter)
+        super(MsgDir, self).__init__(root_path, 16, levels=2, prefix_length=0, formatter=default_formatter)
 
 
     def __check(self, key, content, prefix):
@@ -21,7 +23,8 @@ class MsgDir(HexDir):
 
 
     def get(self, k):
-        fp = self.to_filepath(k)
+        u = uuid.UUID(k)
+        fp = self.to_filepath(u.hex)
         f = None
         f = open(fp, 'rb')
         r = f.read()
@@ -30,11 +33,13 @@ class MsgDir(HexDir):
 
 
     def key_to_string(self, k):
-        return k.decode('utf-8')
+        u = uuid.UUID(bytes=k)
+        return str(u)
 
 
     def put(self, k, v):
-        return self.add(k.encode('utf-8'), v)
+        u = uuid.UUID(k)
+        return self.add(u.bytes, v)
 
 
 class FileStoreFactory:

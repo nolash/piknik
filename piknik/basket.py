@@ -144,11 +144,11 @@ class Basket:
 
     def __get_msg(self, issue_id):
         r = self.state.get(issue_id)
-        print('issue {}'.format(r))
         o = Issue.from_str(r)
         try:
             v = self.__msg.get(issue_id)
-            return IssueMessage.parse(o, v.decode('utf-8'), verifier=self.__msg_verify)
+            m = IssueMessage.parse(o, v.decode('utf-8'), verifier=self.__msg_verify)
+            return m
         except FileNotFoundError:
             logg.debug('instantiating new message log for {}'.format(issue_id))
 

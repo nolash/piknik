@@ -96,10 +96,9 @@ class TestStore(unittest.TestCase):
 
         b = Basket(self.store_factory)
         m = b.msg(v, 's:baz')
-        print(m)
 
 
-    def test_msg_resume_sig_verify(self):
+    def test_msg_sig_verify_resume(self):
         (crypto, gpg, gpg_dir) = pgp_setup()
         b = Basket(self.store_factory, message_wrapper=crypto.sign, message_verifier=crypto.verify)
         o = Issue('foo')

@@ -95,7 +95,6 @@ class Issue:
             if self.owner_idx == i:
                 o['owner'] = aid
 
-        print(o)
         return json.dumps(o)
 
 

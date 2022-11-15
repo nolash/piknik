@@ -23,10 +23,11 @@ class InvalidSignature(Exception):
 
 class PGPSigner:
 
-    def __init__(self, home_dir=None, default_key=None, passphrase=None):
+    def __init__(self, home_dir=None, default_key=None, passphrase=None, use_agent=False):
         self.gpg = gnupg.GPG(gnupghome=home_dir)
         self.default_key = default_key
         self.passphrase = passphrase
+        self.use_agent = use_agent
 
 
     def sign(self, msg, passphrase=None): # msg = IssueMessage object
