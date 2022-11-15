@@ -25,12 +25,14 @@ class Issue:
     def from_str(s):
         r = json.loads(s)
         o = Issue(title=r['title'], issue_id=r['id'])
-        for k in r['assigned'].keys():
-            print('processing {}'.format(k))
+        for i, k in enumerate(r['assigned'].keys()):
             p = Identity(k)
             o.assigned.append(p)
             t = datetime.datetime.utcfromtimestamp(r['assigned'][k])
             o.assigned_time.append(t)
+            if r['owner'] == None or k == r['owner']:
+                r['owner'] = k
+                o.owner_idx = i
         return o
 
 
@@ -84,10 +86,16 @@ class Issue:
             'id': str(self.id),
             'title': self.title,
             'assigned': {},
+            'owner': None,
             }
-        for v in self.get_assigned():
-            o['assigned'][v[0].id()] = v[1].timestamp()
 
+        for i, v in enumerate(self.get_assigned()):
+            aid = v[0].id()
+            o['assigned'][aid] = v[1].timestamp()
+            if self.owner_idx == i:
+                o['owner'] = aid
+
+        print(o)
         return json.dumps(o)
 
 

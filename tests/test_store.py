@@ -120,13 +120,17 @@ class TestStore(unittest.TestCase):
         self.b.assign(vb, alice)
         self.b.assign(vb, bob)
         self.b.owner(vb, bob)
+        r = self.b.get(vb)
+        check = Identity(bob)
+        self.assertTrue(r.owner() == check)
+
         self.b.unassign(vb, alice)
 
         r = self.b.get(vb)
         check = Identity(bob)
         self.assertEqual(r.owner(), check)
         check_assigned = r.get_assigned()
-        self.assertEqual(check_assigned[0][0], check)
+        self.assertTrue(r.owner() == check)
 
 
 if __name__ == '__main__':

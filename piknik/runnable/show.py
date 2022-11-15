@@ -20,12 +20,28 @@ def render_default(b, o, t):
     print("""id: {}
 title: {}
 tags: {}
-    """.format(
+""".format(
         o.id,
         o.title,
         ', '.join(t),
             )
           )
+
+    assigned = o.get_assigned()
+
+    if len(assigned) == 0:
+        print('(not assigned)')
+        return
+
+    print('assigned to:')
+    owner = o.owner()
+    for v in assigned:
+        o = v[0]
+        s = o.id()
+        if o == owner:
+            s += ' (owner)'
+        print('\t' + str(s))
+
 
 def main():
     o = basket.get(arg.issue_id)

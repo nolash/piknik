@@ -20,3 +20,7 @@ class Identity:
         h.update(self.__id)
         z = h.digest()
         return 'sha256:' + z.hex()
+
+
+    def __str__(self):
+        return self.id()

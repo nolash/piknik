@@ -53,7 +53,6 @@ class Basket:
 
     def get(self, issue_id):
         r = self.state.get(issue_id)
-        print('get content {}'.format(r))
         o = Issue.from_str(r)
         return o
 
