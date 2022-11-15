@@ -13,6 +13,7 @@ from piknik import (
         )
 from piknik.error import DeadIssue
 from piknik.store import FileStoreFactory
+from piknik.identity import Identity
 
 # tests imports
 from tests.common import debug_out
@@ -107,6 +108,25 @@ class TestStore(unittest.TestCase):
 
         b = Basket(self.store_factory, message_wrapper=crypto.sign, message_verifier=crypto.verify)
         m = b.get_msg(v)
+
+
+    def test_store_assignments(self):
+        o = Issue('foo')
+        vb = self.b.add(o)
+   
+        alice = b'inky'.hex()
+        bob = b'pinky'.hex()
+
+        self.b.assign(vb, alice)
+        self.b.assign(vb, bob)
+        self.b.owner(vb, bob)
+        self.b.unassign(vb, alice)
+
+        r = self.b.get(vb)
+        check = Identity(bob)
+        self.assertEqual(r.owner(), check)
+        check_assigned = r.get_assigned()
+        self.assertEqual(check_assigned[0][0], check)
 
 
 if __name__ == '__main__':

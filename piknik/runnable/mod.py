@@ -16,6 +16,7 @@ argp.add_argument('-t', '--tag', type=str, action='append', default=[], help='Ad
 argp.add_argument('-u', '--untag', type=str, action='append', default=[], help='Remove tag from issue')
 argp.add_argument('-f', '--file', type=str, action='append', help='Add message file part')
 argp.add_argument('-m', '--message', type=str, action='append', default=[], help='Add message text part')
+argp.add_argument('-a', '--assign', type=str, action='append', default=[], help='Assign given identity to issue')
 argp.add_argument('issue_id', type=str, help='Issue id to modify')
 arg = argp.parse_args(sys.argv[1:])
 
@@ -42,6 +43,10 @@ def main():
 
     for v in arg.untag:
         basket.untag(arg.issue_id, v)
+
+    for v in arg.assign:
+        basket.assign(arg.issue_id, v)
+
 
 
 if __name__ == '__main__':

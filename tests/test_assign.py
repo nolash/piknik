@@ -26,15 +26,6 @@ class TestAssign(unittest.TestCase):
         self.assertEqual(r, check)
 
 
-    def test_identity_equality(self):
-        one = Identity(self.alice)
-        two = Identity(self.alice)
-        self.assertTrue(one == two)
-        
-        three = Identity(self.bob)
-        self.assertFalse(one == three)
-
-
     def test_identity_load(self):
         o = Issue('foo')
         alice = Identity(self.alice)
@@ -98,6 +89,21 @@ class TestAssign(unittest.TestCase):
         with self.assertRaises(UnknownIdentityError):
             o.owner()
 
+
+    def test_issue_identity_equality(self):
+        alice = Identity(self.alice)
+        bob = Identity(self.bob)
+
+        one = Issue('foo')
+        two = Issue('foo', issue_id=one.id)
+
+        one.assign(alice)
+        two.assign(alice)
+        self.assertTrue(one == two)
+
+        two.assign(bob)
+        self.assertFalse(one == two)
+        
 
 if __name__ == '__main__':
     unittest.main()

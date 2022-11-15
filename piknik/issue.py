@@ -26,6 +26,7 @@ class Issue:
         r = json.loads(s)
         o = Issue(title=r['title'], issue_id=r['id'])
         for k in r['assigned'].keys():
+            print('processing {}'.format(k))
             p = Identity(k)
             o.assigned.append(p)
             t = datetime.datetime.utcfromtimestamp(r['assigned'][k])
@@ -95,4 +96,10 @@ class Issue:
             return False
         if o.title != self.title:
             return False
+        if len(self.assigned) != len(o.assigned):
+            return False
+        for i, v in enumerate(self.assigned):
+            if o.assigned[i] != v:
+                return False
+            
         return True

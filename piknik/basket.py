@@ -8,9 +8,9 @@ import shep
 from .error import DeadIssue
 from .issue import Issue
 from .msg import IssueMessage
+from .identity import Identity
 
 logg = logging.getLogger(__name__)
-
 
 class Basket:
 
@@ -53,6 +53,7 @@ class Basket:
 
     def get(self, issue_id):
         r = self.state.get(issue_id)
+        print('get content {}'.format(r))
         o = Issue.from_str(r)
         return o
 
@@ -157,6 +158,33 @@ class Basket:
 
     def get_msg(self, issue_id):
         return self.__get_msg(issue_id)
+
+
+    def assign(self, issue_id, identity):
+        r = self.state.get(issue_id)
+        o = Issue.from_str(r)
+        v = Identity(identity)
+        r = o.assign(v)
+        self.state.replace(issue_id, contents=str(o))
+        return r
+
+
+    def owner(self, issue_id, identity):
+        r = self.state.get(issue_id)
+        o = Issue.from_str(r)
+        v = Identity(identity)
+        r = o.set_owner(v)
+        self.state.replace(issue_id, contents=str(o))
+        return r
+
+
+    def unassign(self, issue_id, identity):
+        r = self.state.get(issue_id)
+        o = Issue.from_str(r)
+        v = Identity(identity)
+        r = o.unassign(v)
+        self.state.replace(issue_id, contents=str(o))
+        return r
 
 
     def msg(self, issue_id, *args):
