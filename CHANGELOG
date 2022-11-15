@@ -1,8 +1,8 @@
 - 0.1.3
 	? Make message settable with mod command
-	? Make assignment settable with mod command
 - 0.1.2
-	? Task assignments
+	* Task assignments
+	* Make assignment settable with mod command
 - 0.1.1
 	* MIME message log for issues
 - 0.1.0
