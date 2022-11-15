@@ -27,6 +27,12 @@ def test_wrapper(p):
     return m
 
 
+def test_unwrapper(msg, message_callback=None, part_callback=None):
+    for v in msg.walk():
+        if message_callback != None:
+            message_callback(v)
+
+
 class TestMsg(unittest.TestCase):
 
     def setUp(self):
@@ -72,6 +78,22 @@ class TestMsg(unittest.TestCase):
         v = b.add(o)
         m = b.msg(v, 's:foo')
         print(m)
+
+
+    def test_render(self):
+        b = Basket(self.store, message_wrapper=test_wrapper)
+        o = Issue('bar')
+        v = b.add(o)
+        m = b.msg(v, 's:foo')
+        m = b.msg(v, 's:bar', 's:baz')
+ 
+        def render_envelope(msg, hdr):
+            print('eeeeeenvvv {} {}'.format(hdr, msg))
+
+        def render_message(envelope, msg, mid):
+            print('rendeeeer {} {}'.format(mid, msg))
+
+        m = b.get_msg(v, envelope_callback=render_envelope, message_callback=render_message)
 
 
 if __name__ == '__main__':

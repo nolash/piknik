@@ -42,6 +42,10 @@ tags: {}
             s += ' (owner)'
         print('\t' + str(s))
 
+    m = basket.get_msg(arg.issue_id)
+    print()
+    print(m)
+
 
 def main():
     o = basket.get(arg.issue_id)

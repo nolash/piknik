@@ -14,7 +14,7 @@ logg = logging.getLogger(__name__)
 
 class Basket:
 
-    def __init__(self, state_factory, message_wrapper=None, message_verifier=None):
+    def __init__(self, state_factory, message_wrapper=None):
         self.no_resurrect = True
         self.state = state_factory.create_states(default_state='proposed', verifier=self.__check_resurrect)
         self.state.add('backlog')
@@ -33,7 +33,6 @@ class Basket:
 
         self.__msg = state_factory.create_messages()
         self.__msg_wrap = message_wrapper
-        self.__msg_verify = message_verifier
 
         self.issues_rev = {}
 
@@ -142,12 +141,12 @@ class Basket:
         return shep.state.split_elements(r)
 
 
-    def __get_msg(self, issue_id):
+    def __get_msg(self, issue_id, envelope_callback=None, message_callback=None):
         r = self.state.get(issue_id)
         o = Issue.from_str(r)
         try:
             v = self.__msg.get(issue_id)
-            m = IssueMessage.parse(o, v.decode('utf-8'), verifier=self.__msg_verify)
+            m = IssueMessage.parse(o, v.decode('utf-8'), envelope_callback=envelope_callback, message_callback=message_callback)
             return m
         except FileNotFoundError:
             logg.debug('instantiating new message log for {}'.format(issue_id))
@@ -155,8 +154,8 @@ class Basket:
         return IssueMessage(o)
 
 
-    def get_msg(self, issue_id):
-        return self.__get_msg(issue_id)
+    def get_msg(self, issue_id, envelope_callback=None, message_callback=None):
+        return self.__get_msg(issue_id, envelope_callback=envelope_callback, message_callback=message_callback)
 
 
     def assign(self, issue_id, identity):

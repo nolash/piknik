@@ -9,6 +9,7 @@ from email.message import Message
 # local imports
 from piknik import Basket
 from piknik import Issue
+from piknik.msg import IssueMessage
 
 # test imports
 from tests.common import TestStates
@@ -26,7 +27,7 @@ class TestMsg(unittest.TestCase):
     def setUp(self):
         self.store = TestStates()
         (self.crypto, self.gpg, self.gpg_dir) = pgp_setup()
-        self.b = Basket(self.store, message_wrapper=self.crypto.sign, message_verifier=self.crypto.verify)
+        self.b = Basket(self.store, message_wrapper=self.crypto.sign)
 
 
     def tearDown(self):
@@ -48,8 +49,9 @@ class TestMsg(unittest.TestCase):
         two.set_payload('bar')
         m.attach(two)
 
+        o = Issue('foo')
         m = self.crypto.sign(m, passphrase='foo')
-        self.crypto.verify(m)
+        r = IssueMessage.parse(o, str(m), envelope_callback=self.crypto.envelope_callback, message_callback=self.crypto.message_callback)
 
 
     def test_wrap_double_sig(self):
@@ -93,10 +95,9 @@ class TestMsg(unittest.TestCase):
         m = self.crypto.sign(m, passphrase='foo')
         mp.attach(m)
 
-        r = self.crypto.verify(mp)
-        self.assertEqual(len(r), 2)
-        self.assertIn('foo', r)
-        self.assertIn('bar', r)
+        self.crypto.envelope_callback(mp, 'pgp')
+        r = self.crypto.message_callback(mp, m, 'foo')
+        r = self.crypto.message_callback(mp, m, 'bar')
 
 
     # TODO: assert

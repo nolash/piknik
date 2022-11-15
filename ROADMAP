@@ -9,5 +9,3 @@
 		- target hash above
 		- git tag
 		- arbitrary string identifier
-- 0.2.0
-	* GPG signing of issue messages.

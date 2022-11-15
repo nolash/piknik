@@ -28,12 +28,35 @@ class IssueMessage:
         self.__m.set_boundary(str(uuid.uuid4()))
 
 
+    def __unwrap(self, msg, envelope_callback=None, message_callback=None):
+        message_ids = []
+        message_id = None
+        envelope = None
+        for m in msg.walk():
+            env_header = m.get('X-Piknik-Envelope')
+            if env_header != None:
+                if envelope_callback != None:
+                    envelope_callback(m, env_header)
+                envelope = m
+                continue
+
+            if message_callback == None:
+                continue
+
+            new_message_id = m.get('X-Piknik-Msg-Id')
+            if new_message_id != None:
+                message_id = new_message_id
+                message_ids.append(message_id)
+
+            message_callback(envelope, m, message_id)
+        return message_ids
+
+
     @classmethod
-    def parse(cls, issue, v, verifier=None):
+    def parse(cls, issue, v, envelope_callback=None, message_callback=None):
         o = cls(issue)
         m = message_from_string(v)
-        if verifier != None:
-            verifier(m)
+        o.__unwrap(m, envelope_callback=envelope_callback, message_callback=message_callback)
         o.__m = m
         return o
 

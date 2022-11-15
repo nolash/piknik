@@ -7,18 +7,11 @@ from email.message import Message
 # external imports
 import gnupg
 
-logging.basicConfig(level=logging.DEBUG)
+# local imports
+from piknik.error import VerifyError
+
 logg = logging.getLogger()
 logging.getLogger('gnupg').setLevel(logging.ERROR)
-
-
-
-class CorruptEnvelope(Exception):
-    pass
-
-
-class InvalidSignature(Exception):
-    pass
 
 
 class PGPSigner:
@@ -28,6 +21,8 @@ class PGPSigner:
         self.default_key = default_key
         self.passphrase = passphrase
         self.use_agent = use_agent
+        self.__envelope_state = -1 # -1 not in envelope, 0 in outer envelope, 1 inner envelope, not (yet) valid, 2 envelope valid (with signature)
+        self.__envelope = None
 
 
     def sign(self, msg, passphrase=None): # msg = IssueMessage object
@@ -48,10 +43,28 @@ class PGPSigner:
 
         return m
 
+    
+    def envelope_callback(self, msg, env_header):
+        self.__envelope = None
+        if env_header != 'pgp':
+            raise VerifyError('expected envelope type "pgp", but got {}'.format(env_header))
+        if self.__envelope_state > -1 and self.__envelope_state < 2:
+            raise VerifyError('new envelope before previous was verified')
+        self.__envelope = msg
+        self.__envelope_state = 0
 
-    def __verify_msg(self, m, ms):
-        v = m.as_string()
-        sig = ms.get_payload()
+
+    def message_callback(self, envelope, msg, message_id):
+        if msg.get('Content-Type') != 'application/pgp-signature':
+            return
+
+        if self.__envelope_state == 0:
+            self.__envelope_state = 1
+            self.__envelope = msg
+            return
+
+        v = self.__envelope.as_string()
+        sig = msg.get_payload()
         (fd, fp) = tempfile.mkstemp()
         f = os.fdopen(fd, 'w')
         f.write(sig)
@@ -59,35 +72,8 @@ class PGPSigner:
         r = self.gpg.verify_data(fp, v.encode('utf-8'))
         os.unlink(fp)
         if r.key_status != None:
-            raise InvalidSignature('key status {}'.format(r.key_status))
+            raise VerifyError('unexpeced key status {}'.format(r.key_status))
         if r.status != 'signature valid':
-            raise InvalidSignature('invalid signature')
+            raise VerifyError('invalid signature')
         logg.debug('signature ok')
-
-
-    def verify(self, msg): # msg = IssueMessage object
-        in_envelope = False
-        message_ids = []
-        envelope_message = None
-        message_id = None
-        for m in msg.walk():
-            if m.get('X-Piknik-Envelope') == 'pgp':
-                logg.debug('detected pgp envelope')
-                in_envelope = True
-            elif in_envelope:
-                if envelope_message != None:
-                    if m.get('X-Piknik-Envelope') != None:
-                        raise CorruptEnvelope()
-                    if m.get('Content-Type') == 'application/pgp-signature':
-                        self.__verify_msg(envelope_message, m)
-                        logg.debug('pgp signature for message id "{}" ok'.format(message_id))
-                        message_ids.append(message_id)
-
-                        in_envelope = False
-                        envelope_message = None
-                        message_id = None
-                else:
-                    message_id = m.get('X-Piknik-Msg-Id')
-                    logg.debug('checking envelope for message id "{}"'.format(message_id))
-                    envelope_message = m
-        return message_ids
+        self.__envelope_state = 2

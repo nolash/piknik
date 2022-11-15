@@ -8,3 +8,7 @@ class AlreadyAssignedError(Exception):
 
 class UnknownIdentityError(Exception):
     pass
+
+
+class VerifyError(Exception):
+    pass
