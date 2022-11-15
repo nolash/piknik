@@ -49,18 +49,18 @@ class PGPSigner:
         if env_header != 'pgp':
             raise VerifyError('expected envelope type "pgp", but got {}'.format(env_header))
         if self.__envelope_state > -1 and self.__envelope_state < 2:
-            raise VerifyError('new envelope before previous was verified')
+            raise VerifyError('new envelope before previous was verified ({})'.format(self.__envelope_state))
         self.__envelope = msg
         self.__envelope_state = 0
 
 
     def message_callback(self, envelope, msg, message_id):
-        if msg.get('Content-Type') != 'application/pgp-signature':
-            return
-
         if self.__envelope_state == 0:
             self.__envelope_state = 1
             self.__envelope = msg
+            return
+
+        if msg.get('Content-Type') != 'application/pgp-signature':
             return
 
         v = self.__envelope.as_string()

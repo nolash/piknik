@@ -9,10 +9,11 @@ from piknik import Issue
 from piknik.store import FileStoreFactory
 from piknik.crypto import PGPSigner
 
+logging.basicConfig(level=logging.DEBUG)
+
 next_i = 1
 def next_message_arg():
     global next_i
-    print('next {}'.format(next_i))
 
     r = sys.argv[next_i]
 
@@ -39,7 +40,7 @@ arg = argp.parse_args(sys.argv[1:])
 
 signer = PGPSigner(default_key=arg.s, use_agent=True)
 store_factory = FileStoreFactory(arg.d)
-basket = Basket(store_factory, message_wrapper=signer.sign, message_verifier=signer.verify)
+basket = Basket(store_factory, message_wrapper=signer.sign)
 
 
 def main():

@@ -34,11 +34,12 @@ class MsgDir(HexDir):
 
     def key_to_string(self, k):
         u = uuid.UUID(bytes=k)
-        return str(u)
+        return u.bytes.hex()
 
 
     def put(self, k, v):
         u = uuid.UUID(k)
+        print('putting {}'.format(u.bytes.hex()))
         return self.add(u.bytes, v)
 
 

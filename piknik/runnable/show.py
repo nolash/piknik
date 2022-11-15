@@ -1,9 +1,18 @@
+# standard imports
 import sys
 import argparse
+import logging
+from base64 import b64decode
+from email.utils import parsedate_to_datetime
 
+# external imports
+from mimeparse import parse_mime_type
+
+# local imports
 from piknik import Basket
 from piknik import Issue
 from piknik.store import FileStoreFactory
+from piknik.crypto import PGPSigner
 
 
 argp = argparse.ArgumentParser()
@@ -14,6 +23,52 @@ arg = argp.parse_args(sys.argv[1:])
 
 store_factory = FileStoreFactory(arg.d)
 basket = Basket(store_factory)
+
+
+# TODO can implement as email parser api instead?
+class PGPWrapper(PGPSigner):
+
+    def __init__(self, home_dir=None):
+        super(PGPWrapper, self).__init__(home_dir=home_dir)
+        self.message_date = None
+
+
+    def render_message(self, message, message_id):
+        r = None
+        m = parse_mime_type(message.get_content_type())
+        print('content {}'.format(m))
+
+        if m[0] == 'text':
+            if m[1] == 'plain':
+                r = message.get_payload()
+                if message.get('Content-Transfer-Encoding') == 'BASE64':
+                    r = b64decode(r).decode()
+            else:
+                r = '[rich text]'
+        else:
+            sz = message.get('Content-Length')
+            if sz == None:
+                sz = 'unknown'
+            r = '[file: ' + message.get_filename() + ', size: ' + sz + ']'
+
+        print("message {} - {}\n\t{}\n".format(self.message_date, message_id, r))
+
+
+    def message_callback(self, envelope, message, message_id):
+        super(PGPWrapper, self).message_callback(envelope, message, message_id)
+
+        if message_id == None:
+            return
+
+        if message.get('X-Piknik-Msg-Id') == None:
+            if message.get('Content-Type') == 'application/pgp-signature':
+                return
+            self.render_message(message, message_id)
+        else:
+            d = message.get('Date')
+            self.message_date = parsedate_to_datetime(d)
+
+verifier = PGPWrapper()
 
 
 def render_default(b, o, t):
@@ -42,9 +97,7 @@ tags: {}
             s += ' (owner)'
         print('\t' + str(s))
 
-    m = basket.get_msg(arg.issue_id)
-    print()
-    print(m)
+    m = basket.get_msg(arg.issue_id, envelope_callback=verifier.envelope_callback, message_callback=verifier.message_callback)
 
 
 def main():

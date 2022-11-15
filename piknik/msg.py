@@ -91,7 +91,8 @@ class IssueMessage:
         r = f.read()
         f.close()
         r = b64encode(r)
-        m.set_payload(str(r))
+        m.add_header('Content-Length', str(len(r)))
+        m.set_payload(r.decode())
 
         return m
 

@@ -148,8 +148,8 @@ class Basket:
             v = self.__msg.get(issue_id)
             m = IssueMessage.parse(o, v.decode('utf-8'), envelope_callback=envelope_callback, message_callback=message_callback)
             return m
-        except FileNotFoundError:
-            logg.debug('instantiating new message log for {}'.format(issue_id))
+        except FileNotFoundError as e:
+            logg.debug('instantiating new message log for {} {}'.format(issue_id, e))
 
         return IssueMessage(o)
 
