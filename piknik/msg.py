@@ -47,14 +47,18 @@ class IssueMessage:
 
 
     def detect_file(self, v):
-        return mimetypes.guess_type(v)
+        r = mimetypes.guess_type(v)
+        if r[0] == None:
+            return ('application/octet-stream', None,)
+        return r
 
 
     def from_file(self, v):
-        mime_type = self.detect_file(v)
-
         m = Message()
+        
+        mime_type = self.detect_file(v)
         m.set_type(mime_type[0])
+
         if mime_type[1] != None:
             m.set_charset(mime-type[1])
         m.add_header('Content-Transfer-Encoding', 'BASE64')
