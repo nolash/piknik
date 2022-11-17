@@ -187,6 +187,7 @@ class Basket:
 
     def msg(self, issue_id, *args):
         m = self.__get_msg(issue_id)
+        print('slllslsll')
         m.add(*args, wrapper=self.__msg_wrap)
         ms = m.as_bytes()
         self.__msg.put(issue_id, ms)

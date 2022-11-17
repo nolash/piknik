@@ -15,7 +15,7 @@ from piknik import Issue
 from piknik.store import FileStoreFactory
 from piknik.crypto import PGPSigner
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
@@ -34,33 +34,36 @@ class PGPWrapper(PGPSigner):
     def __init__(self, home_dir=None):
         super(PGPWrapper, self).__init__(home_dir=home_dir)
         self.message_date = None
-        self.message = None
+        self.message = []
         self.message_id = None
         self.sender = None
         self.valid = False
 
 
-    def render_message(self, envelope, message, message_id):
-        r = None
-        m = parse_mime_type(message.get_content_type())
+    def render_message(self, envelope, messages, message_id, w=sys.stdout):
+        r = ''
+        for message in messages:
+            m = parse_mime_type(message.get_content_type())
 
-        if m[0] == 'text':
-            if m[1] == 'plain':
-                r = message.get_payload()
-                if message.get('Content-Transfer-Encoding') == 'BASE64':
-                    r = b64decode(r).decode()
+            v = ''
+            if m[0] == 'text':
+                if m[1] == 'plain':
+                    v = message.get_payload()
+                    if message.get('Content-Transfer-Encoding') == 'BASE64':
+                        v = b64decode(v).decode()
+                else:
+                    v = '[rich text]'
             else:
-                r = '[rich text]'
-        else:
-            sz = message.get('Content-Length')
-            if sz == None:
-                sz = 'unknown'
-            r = '[file: ' + message.get_filename() + ', size: ' + sz + ']'
+                sz = message.get('Content-Length')
+                if sz == None:
+                    sz = 'unknown'
+                v = '[file: ' + message.get_filename() + ', size: ' + sz + ']'
 
-        valid = '[++]'
-        if not self.valid:
-            valid = '[!!]'
-        print('message {} from {} {} - {}\n\t{}\n'.format(self.sender, self.message_date, valid, message_id, r))
+            valid = '[++]'
+            if not self.valid:
+                valid = '[!!]'
+            r += '\n\t' + v + '\n'
+        w.write('\nmessage {} from {} {} - {}\n\t{}\n'.format(self.message_date, self.sender, valid, message_id, r))
 
 
     def envelope_callback(self, envelope, envelope_type):
@@ -72,7 +75,7 @@ class PGPWrapper(PGPSigner):
     def message_callback(self, envelope, message, message_id):
         (envelope, message) = super(PGPWrapper, self).message_callback(envelope, message, message_id)
 
-        if envelope != None and  not envelope.resolved:
+        if envelope != None and not envelope.resolved:
             self.sender = envelope.sender
             self.valid = envelope.valid
             self.resolved = True
@@ -84,14 +87,14 @@ class PGPWrapper(PGPSigner):
             if message.get('Content-Type') == 'application/pgp-signature':
                 #return
                 self.render_message(envelope, self.message, self.message_id)
-                self.message = None
+                self.message = []
                 self.message_id = None
             else:
-                self.message = message
-                self.message_id = message_id
+                self.message.append(message)
         else:
             d = message.get('Date')
             self.message_date = parsedate_to_datetime(d)
+            self.message_id = message_id
 
 gpg_home = os.environ.get('GPGHOME')
 verifier = PGPWrapper(home_dir=gpg_home)

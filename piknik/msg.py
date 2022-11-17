@@ -111,8 +111,13 @@ class IssueMessage:
         return m
 
 
-    def add(self, *args, related_id=None, wrapper=None):
-        m_id = uuid.uuid4()
+    def add(self, *args, related_id=None, wrapper=None, message_id=None):
+        print('aaargs {}'.format(args))
+        m_id = None
+        try:
+            m_id = uuid.UUID(message_id)
+        except (ValueError, TypeError):
+            m_id = uuid.uuid4()
         m = Message()
         m.add_header('X-Piknik-Msg-Id', str(m_id))
         m.add_header('Date', formatdate(time.time()))

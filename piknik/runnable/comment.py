@@ -44,6 +44,7 @@ basket = Basket(store_factory, message_wrapper=signer.sign)
 
 
 def main():
+    messages = []
     while True:
         try:
             r = next_message_arg()
@@ -52,13 +53,12 @@ def main():
         if r == None:
             continue
 
-        messages = []
         if r[0] == 'r':
             messages.append('s:' + r[1])
         elif r[0] == 'f':
             messages.append('f:' + r[1])
 
-        basket.msg(arg.issue_id, *messages)
+    basket.msg(arg.issue_id, *messages)
 
 if __name__ == '__main__':
     main()

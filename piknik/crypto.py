@@ -77,7 +77,7 @@ class PGPSigner:
         if r.key_status != None:
             raise VerifyError('unexpeced key status {}'.format(r.key_status))
         if r.status == 'no public key':
-            logg.warning('public key flr {} not found, cannot verify'.format(r.fingerprint))
+            logg.warning('public key for {} not found, cannot verify'.format(r.fingerprint))
         elif r.status != 'signature valid':
             raise VerifyError('invalid signature')
         else:
