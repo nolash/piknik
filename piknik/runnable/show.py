@@ -1,4 +1,5 @@
 # standard imports
+import os
 import sys
 import argparse
 import logging
@@ -14,6 +15,8 @@ from piknik import Issue
 from piknik.store import FileStoreFactory
 from piknik.crypto import PGPSigner
 
+logging.basicConfig(level=logging.DEBUG)
+logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
 argp.add_argument('-d', type=str, help='Data directory')
@@ -31,12 +34,15 @@ class PGPWrapper(PGPSigner):
     def __init__(self, home_dir=None):
         super(PGPWrapper, self).__init__(home_dir=home_dir)
         self.message_date = None
+        self.message = None
+        self.message_id = None
+        self.sender = None
+        self.valid = False
 
 
-    def render_message(self, message, message_id):
+    def render_message(self, envelope, message, message_id):
         r = None
         m = parse_mime_type(message.get_content_type())
-        print('content {}'.format(m))
 
         if m[0] == 'text':
             if m[1] == 'plain':
@@ -51,24 +57,44 @@ class PGPWrapper(PGPSigner):
                 sz = 'unknown'
             r = '[file: ' + message.get_filename() + ', size: ' + sz + ']'
 
-        print("message {} - {}\n\t{}\n".format(self.message_date, message_id, r))
+        valid = '[++]'
+        if not self.valid:
+            valid = '[!!]'
+        print('message {} from {} {} - {}\n\t{}\n'.format(self.sender, self.message_date, valid, message_id, r))
+
+
+    def envelope_callback(self, envelope, envelope_type):
+        envelope = super(PGPWrapper, self).envelope_callback(envelope, envelope_type)
+        envelope.valid = False
+        return envelope
 
 
     def message_callback(self, envelope, message, message_id):
-        super(PGPWrapper, self).message_callback(envelope, message, message_id)
+        (envelope, message) = super(PGPWrapper, self).message_callback(envelope, message, message_id)
+
+        if envelope != None and  not envelope.resolved:
+            self.sender = envelope.sender
+            self.valid = envelope.valid
+            self.resolved = True
 
         if message_id == None:
             return
 
         if message.get('X-Piknik-Msg-Id') == None:
             if message.get('Content-Type') == 'application/pgp-signature':
-                return
-            self.render_message(message, message_id)
+                #return
+                self.render_message(envelope, self.message, self.message_id)
+                self.message = None
+                self.message_id = None
+            else:
+                self.message = message
+                self.message_id = message_id
         else:
             d = message.get('Date')
             self.message_date = parsedate_to_datetime(d)
 
-verifier = PGPWrapper()
+gpg_home = os.environ.get('GPGHOME')
+verifier = PGPWrapper(home_dir=gpg_home)
 
 
 def render_default(b, o, t):

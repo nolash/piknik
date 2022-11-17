@@ -15,6 +15,20 @@ from email.utils import formatdate
 logg = logging.getLogger(__name__)
 
 
+class MessageEnvelope:
+
+    def __init__(self, msg):
+        self.msg = msg
+        self.sender = None
+        self.valid = False
+        self.resolved = False
+
+
+def rubber_stamp_envelope(envelope, envelope_type):
+    envelope.valid = True
+    return
+
+
 class IssueMessage:
 
     def __init__(self, issue):
@@ -28,7 +42,7 @@ class IssueMessage:
         self.__m.set_boundary(str(uuid.uuid4()))
 
 
-    def __unwrap(self, msg, envelope_callback=None, message_callback=None):
+    def __unwrap(self, msg, envelope_callback=rubber_stamp_envelope, message_callback=None):
         message_ids = []
         message_id = None
         envelope = None
@@ -36,7 +50,7 @@ class IssueMessage:
             env_header = m.get('X-Piknik-Envelope')
             if env_header != None:
                 if envelope_callback != None:
-                    envelope_callback(m, env_header)
+                    m = envelope_callback(m, env_header)
                 envelope = m
                 continue
 

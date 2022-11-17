@@ -9,6 +9,7 @@ import gnupg
 
 # local imports
 from piknik.error import VerifyError
+from piknik.msg import MessageEnvelope
 
 logg = logging.getLogger()
 logging.getLogger('gnupg').setLevel(logging.ERROR)
@@ -52,16 +53,17 @@ class PGPSigner:
             raise VerifyError('new envelope before previous was verified ({})'.format(self.__envelope_state))
         self.__envelope = msg
         self.__envelope_state = 0
+        return MessageEnvelope(msg)
 
 
     def message_callback(self, envelope, msg, message_id):
         if self.__envelope_state == 0:
             self.__envelope_state = 1
             self.__envelope = msg
-            return
+            return (envelope, msg,)
 
         if msg.get('Content-Type') != 'application/pgp-signature':
-            return
+            return (envelope, msg,)
 
         v = self.__envelope.as_string()
         sig = msg.get_payload()
@@ -71,9 +73,17 @@ class PGPSigner:
         f.close()
         r = self.gpg.verify_data(fp, v.encode('utf-8'))
         os.unlink(fp)
+        
         if r.key_status != None:
             raise VerifyError('unexpeced key status {}'.format(r.key_status))
-        if r.status != 'signature valid':
+        if r.status == 'no public key':
+            logg.warning('public key flr {} not found, cannot verify'.format(r.fingerprint))
+        elif r.status != 'signature valid':
             raise VerifyError('invalid signature')
-        logg.debug('signature ok')
+        else:
+            logg.debug('signature ok from {}'.format(r.fingerprint))
+            envelope.valid = True
+        envelope.sender = r.fingerprint
         self.__envelope_state = 2
+
+        return (envelope, msg,)
