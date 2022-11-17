@@ -3,6 +3,7 @@ import os
 import sys
 import argparse
 import logging
+import tempfile
 from base64 import b64decode
 from email.utils import parsedate_to_datetime
 
@@ -20,12 +21,28 @@ logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
 argp.add_argument('-d', type=str, help='Data directory')
+argp.add_argument('-f', '--files', dest='f', action='store_true', help='Save attachments to filesystem')
+argp.add_argument('-o', '--files-dir', dest='files_dir', type=str, default='.', help='Directory to output saved files to')
 argp.add_argument('-r', '--renderer', type=str, default='default', help='Renderer module for output')
 argp.add_argument('issue_id', type=str, help='Issue id to show')
 arg = argp.parse_args(sys.argv[1:])
 
 store_factory = FileStoreFactory(arg.d)
 basket = Basket(store_factory)
+
+
+def to_suffixed_file(d, s, data):
+    (v, ext) = os.path.splitext(s)
+    r = tempfile.mkstemp(suffix=ext, dir=d)
+
+    f = os.fdopen(r[0], 'wb')
+    try:
+        f.write(data)
+    except TypeError:
+        f.write(data.encode('utf-8'))
+    f.close()
+
+    return r[1]
 
 
 # TODO can implement as email parser api instead?
@@ -40,7 +57,7 @@ class PGPWrapper(PGPSigner):
         self.valid = False
 
 
-    def render_message(self, envelope, messages, message_id, w=sys.stdout):
+    def render_message(self, envelope, messages, message_id, w=sys.stdout, dump_dir=None):
         r = ''
         for message in messages:
             m = parse_mime_type(message.get_content_type())
@@ -54,10 +71,16 @@ class PGPWrapper(PGPSigner):
                 else:
                     v = '[rich text]'
             else:
+                filename = message.get_filename()
+                if dump_dir != None:
+                    v = message.get_payload()
+                    if message.get('Content-Transfer-Encoding') == 'BASE64':
+                        v = b64decode(v).decode()
+                    filename = to_suffixed_file(dump_dir, filename, v)
                 sz = message.get('Content-Length')
                 if sz == None:
                     sz = 'unknown'
-                v = '[file: ' + message.get_filename() + ', size: ' + sz + ']'
+                v = '[file: ' + filename + ', size: ' + sz + ']'
 
             valid = '[++]'
             if not self.valid:
@@ -85,8 +108,10 @@ class PGPWrapper(PGPSigner):
 
         if message.get('X-Piknik-Msg-Id') == None:
             if message.get('Content-Type') == 'application/pgp-signature':
-                #return
-                self.render_message(envelope, self.message, self.message_id)
+                dump_dir = None
+                if arg.f:
+                    dump_dir = arg.files_dir
+                self.render_message(envelope, self.message, self.message_id, dump_dir=dump_dir)
                 self.message = []
                 self.message_id = None
             else:

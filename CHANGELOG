@@ -4,7 +4,7 @@
 	* View message log in show command
 	* Show signature status with show command
 	* Add message grouping for messages added in the same comment call
-	? Option to dump comment attachment files when viewing with show
+	* Option to dump comment attachment files when viewing with show
 - 0.1.3
 	* Add command for adding MIME Multipart comments
 - 0.1.2
