@@ -141,12 +141,12 @@ class Basket:
         return shep.state.split_elements(r)
 
 
-    def __get_msg(self, issue_id, envelope_callback=None, message_callback=None):
+    def __get_msg(self, issue_id, envelope_callback=None, message_callback=None, post_callback=None):
         r = self.state.get(issue_id)
         o = Issue.from_str(r)
         try:
             v = self.__msg.get(issue_id)
-            m = IssueMessage.parse(o, v.decode('utf-8'), envelope_callback=envelope_callback, message_callback=message_callback)
+            m = IssueMessage.parse(o, v.decode('utf-8'), envelope_callback=envelope_callback, message_callback=message_callback, post_callback=post_callback)
             return m
         except FileNotFoundError as e:
             logg.debug('instantiating new message log for {} {}'.format(issue_id, e))
@@ -154,9 +154,9 @@ class Basket:
         return IssueMessage(o)
 
 
-    def get_msg(self, issue_id, envelope_callback=None, message_callback=None):
-        return self.__get_msg(issue_id, envelope_callback=envelope_callback, message_callback=message_callback)
-
+    def get_msg(self, issue_id, envelope_callback=None, message_callback=None, post_callback=None):
+        return self.__get_msg(issue_id, envelope_callback=envelope_callback, message_callback=message_callback, post_callback=post_callback)
+ 
 
     def assign(self, issue_id, identity):
         r = self.state.get(issue_id)
@@ -187,7 +187,6 @@ class Basket:
 
     def msg(self, issue_id, *args):
         m = self.__get_msg(issue_id)
-        print('slllslsll')
         m.add(*args, wrapper=self.__msg_wrap)
         ms = m.as_bytes()
         self.__msg.put(issue_id, ms)

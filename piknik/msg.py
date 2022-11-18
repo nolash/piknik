@@ -42,10 +42,11 @@ class IssueMessage:
         self.__m.set_boundary(str(uuid.uuid4()))
 
 
-    def __unwrap(self, msg, envelope_callback=rubber_stamp_envelope, message_callback=None):
+    def __unwrap(self, msg, envelope_callback=rubber_stamp_envelope, message_callback=None, post_callback=None):
         message_ids = []
         message_id = None
         envelope = None
+
         for m in msg.walk():
             env_header = m.get('X-Piknik-Envelope')
             if env_header != None:
@@ -63,14 +64,18 @@ class IssueMessage:
                 message_ids.append(message_id)
 
             message_callback(envelope, m, message_id)
+
+        if post_callback != None:
+            post_callback(message_ids)
+
         return message_ids
 
 
     @classmethod
-    def parse(cls, issue, v, envelope_callback=None, message_callback=None):
+    def parse(cls, issue, v, envelope_callback=None, message_callback=None, post_callback=None):
         o = cls(issue)
         m = message_from_string(v)
-        o.__unwrap(m, envelope_callback=envelope_callback, message_callback=message_callback)
+        o.__unwrap(m, envelope_callback=envelope_callback, message_callback=message_callback, post_callback=post_callback)
         o.__m = m
         return o
 
@@ -112,7 +117,6 @@ class IssueMessage:
 
 
     def add(self, *args, related_id=None, wrapper=None, message_id=None):
-        print('aaargs {}'.format(args))
         m_id = None
         try:
             m_id = uuid.UUID(message_id)
