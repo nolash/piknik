@@ -64,17 +64,12 @@ class PGPWrapper(PGPSigner):
 
 
     def render_message(self, envelope, messages, message_date, message_id, dump_dir=None, w=sys.stdout):
-        r = ''
-        w.write('\n')
         for message in messages:
-            ww = io.StringIO()
-            self.renderer.apply_message_part(self.state, self.issue, envelope, message, message_date, message_id, dump_dir=dump_dir, w=ww)
-            valid = '[++]'
-            if not self.valid:
-                valid = '[!!]'
-            ww.seek(0)
-            r += '\n\t' + ww.read() + '\n'
-        w.write('\nmessage {} from {} {} - {}\n\t{}\n'.format(message_date, self.sender, valid, message_id, r))
+            self.renderer.apply_message_part(self.state, self.issue, envelope, message, self.sender, message_date, message_id, self.valid, dump_dir=dump_dir, w=w)
+        #valid = '[++]'
+        #if not self.valid:
+        #    valid = '[!!]'
+        self.renderer.apply_message_post(self.state, self.issue, envelope, message, self.sender, message_date, message_id, self.valid, w=w)
 
 
     def envelope_callback(self, envelope, envelope_type):
@@ -129,6 +124,7 @@ gpg_home = os.environ.get('GPGHOME')
 
 
 def render(renderer, basket, state, issue, tags):
+    renderer.apply_begin()
     renderer.apply_issue(state, issue, tags)
     verifier = PGPWrapper(renderer, state, issue, home_dir=gpg_home)
     m = basket.get_msg(
@@ -137,6 +133,10 @@ def render(renderer, basket, state, issue, tags):
             message_callback=verifier.message_callback,
             post_callback=verifier.post_callback,
         )
+    renderer.apply_issue_post(state, issue, tags)
+    renderer.apply_state_post(state)
+    renderer.apply_end()
+
 
 def render_states(renderer, basket, states):
     renderer.apply_begin()
@@ -185,8 +185,8 @@ def main():
         renderer = piknik.render.html.Renderer()
         return process_states(renderer, basket)
 
-    import piknik.render.plain
-    renderer = piknik.render.plain.Renderer()
+    import piknik.render.html
+    renderer = piknik.render.html.Renderer()
 
     issue = basket.get(arg.issue_id)
     tags = basket.tags(arg.issue_id)
