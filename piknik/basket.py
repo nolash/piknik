@@ -56,6 +56,11 @@ class Basket:
         return o
 
 
+    def get_state(self, issue_id):
+        v = self.state.state(issue_id)
+        return self.state.name(v)
+
+
     def list(self, category=None):
         if category == None:
             category = self.state.BACKLOG

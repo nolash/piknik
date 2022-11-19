@@ -17,20 +17,26 @@ store_factory = FileStoreFactory(arg.d)
 basket = Basket(store_factory)
 
 
-def render_ini(b, r):
+def render(b, r, m):
+    m.apply_begin()
+
     for k in basket.states():
         if k == 'FINISHED' and not arg.show_finished:
             continue
-        print('[' + k + ']') 
+
+        m.apply_state(k)
 
         for v in r[k]:
             if k != 'BLOCKED' and v in r['BLOCKED']:
                 continue
             o = b.get(v)
             t = b.tags(v)
-            print('{}\t{}\t{}'.format(o.title, ','.join(t), v))
+            m.apply_issue(k, v, o, t)
+            m.apply_issue_post(k, v, o, t)
 
-        print()
+        m.apply_state_post(k)
+
+    m.apply_end()
 
 
 def main():
@@ -49,7 +55,10 @@ def main():
             for v in basket.list(category=s):
                results[s].append(v)
 
-    globals()['render_' + arg.renderer](basket, results)
+    import piknik.render.html
+    m = piknik.render.html.Renderer()
+    #globals()['render_' + arg.renderer](basket, results, m)
+    render(basket, results, m)
 
 
 if __name__ == '__main__':
