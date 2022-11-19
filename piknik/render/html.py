@@ -30,22 +30,28 @@ class Renderer(BaseRenderer):
         self.state_buf.append(r)
 
 
-    def apply_issue(self, state, issue_id, issue, tags, w=sys.stdout):
-        v = li(a(issue.title, href=issue_id + '.html'))
+    def apply_issue(self, state, issue, tags, w=sys.stdout):
+        v = li(a(issue.title, href=issue.id + '.html'))
         self.issue_buf.append(v)
 
 
-    def apply_message(self, state, issue_id, issue, tags, message, w=None):
+    def apply_message(self, state, issue, tags, message, w=None):
+        pass
+
+
+    def apply_message_part(self, state, issue, envelope, message, message_date, message_id, dump_dir=None, w=sys.stdout):
+        m = parse_mime_type(message.get_content_type())
+        filename = message.get_filename()
 
 
 
-    def apply_issue_post(self, state, issue_id, issue, tags, w=None):
+    def apply_issue_post(self, state, issue, tags, w=None):
         close = False
         if w == None:
-            fp = os.path.join(self.outdir, issue_id + '.html')
+            fp = os.path.join(self.outdir, issue.id + '.html')
             w = open(fp, 'w')
             close = True
-        r = dominate.document(title='issue: {} ({})'.format(issue.title, issue_id))
+        r = dominate.document(title='issue: {} ({})'.format(issue.title, issue.id))
         r.add(h1(issue.title))
         w.write(r.render())
        

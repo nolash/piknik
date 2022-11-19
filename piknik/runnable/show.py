@@ -23,8 +23,10 @@ argp.add_argument('-d', type=str, help='Data directory')
 argp.add_argument('-f', '--files', dest='f', action='store_true', help='Save attachments to filesystem')
 argp.add_argument('-o', '--files-dir', dest='files_dir', type=str, default='.', help='Directory to output saved files to')
 argp.add_argument('-r', '--renderer', type=str, default='default', help='Renderer module for output')
+argp.add_argument('-s', '--state', type=str, action='append', default=[], help='Limit results to state(s)')
+argp.add_argument('--show-finished', dest='show_finished', action='store_true', help='Include finished issues')
 argp.add_argument('--reverse', action='store_true', help='Sort comments by oldest first')
-argp.add_argument('issue_id', type=str, help='Issue id to show')
+argp.add_argument('issue_id', type=str, nargs='?', default=None, help='Issue id to show')
 arg = argp.parse_args(sys.argv[1:])
 
 store_factory = FileStoreFactory(arg.d)
@@ -127,24 +129,70 @@ gpg_home = os.environ.get('GPGHOME')
 
 
 def render(renderer, basket, state, issue, tags):
-    renderer.apply_issue(state, arg.issue_id, issue, tags)
+    renderer.apply_issue(state, issue, tags)
     verifier = PGPWrapper(renderer, state, issue, home_dir=gpg_home)
     m = basket.get_msg(
             arg.issue_id,
             envelope_callback=verifier.envelope_callback,
             message_callback=verifier.message_callback,
             post_callback=verifier.post_callback,
-            )
+        )
+
+def render_states(renderer, basket, states):
+    renderer.apply_begin()
+
+    for k in basket.states():
+        if k == 'FINISHED' and not arg.show_finished:
+            continue
+
+        renderer.apply_state(k)
+
+        for issue_id in states[k]:
+            if k != 'BLOCKED' and issue_id in states['BLOCKED']:
+                continue
+            issue = basket.get(issue_id)
+            tags = basket.tags(issue_id)
+            renderer.apply_issue(k, issue, tags)
+            renderer.apply_issue_post(k, issue, tags)
+
+        renderer.apply_state_post(k)
+
+    renderer.apply_end()
+
+
+def process_states(renderer, basket):
+    results = {}
+    states = []
+    for s in arg.state:
+        states.append(s.upper())
+
+    l = len(states)
+    for s in basket.states():
+        
+        if results.get(s) == None:
+            results[s] = []
+
+        if l == 0 or s in states:
+            for v in basket.list(category=s):
+               results[s].append(v)
+
+    render_states(renderer, basket, results)
 
 
 def main():
+    if arg.issue_id == None:
+        import piknik.render.html
+        renderer = piknik.render.html.Renderer()
+        return process_states(renderer, basket)
+
+    import piknik.render.plain
+    renderer = piknik.render.plain.Renderer()
+
     issue = basket.get(arg.issue_id)
     tags = basket.tags(arg.issue_id)
     state = basket.get_state(arg.issue_id)
 
     #globals()['render_' + arg.renderer](basket, state, issue, tags)
-    import piknik.render.plain
-    renderer = piknik.render.plain.Renderer()
     render(renderer, basket, state, issue, tags)
     
 

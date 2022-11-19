@@ -15,15 +15,15 @@ class Renderer:
         pass
 
 
-    def apply_issue_pre(self, state, issue_id, issue, tags, w=sys.stdout):
+    def apply_issue_pre(self, state, issue, tags, w=sys.stdout):
         pass
 
 
-    def apply_issue(self, state, issue_id, issue, tags, w=sys.stdout):
+    def apply_issue(self, state, issue, tags, w=sys.stdout):
         pass
 
     
-    def apply_issue_post(self, state, issue_id, issue, tags, w=sys.stdout):
+    def apply_issue_post(self, state, issue, tags, w=sys.stdout):
         pass
 
 
@@ -31,5 +31,5 @@ class Renderer:
         pass
 
 
-    def apply_end(self, state, w=sys.stdout):
+    def apply_end(self, w=sys.stdout):
         pass

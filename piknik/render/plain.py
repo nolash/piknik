@@ -10,7 +10,7 @@ from .base import Renderer as BaseRenderer
 
 class Renderer(BaseRenderer):
 
-    def apply_issue(self, state, issue_id, issue, tags, w=sys.stdout):
+    def apply_issue(self, state, issue, tags, w=sys.stdout):
         w.write("""id: {}
 title: {}
 tags: {}
@@ -38,7 +38,7 @@ tags: {}
             w.write('\t' + str(s))
 
 
-    def apply_message(self, state, issue_id, issue, tags, message, w=sys.stdout):
+    def apply_message(self, state, issue, tags, message, w=sys.stdout):
         pass
 
 
