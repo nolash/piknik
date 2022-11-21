@@ -15,7 +15,7 @@ from piknik.store import FileStoreFactory
 from piknik.crypto import PGPSigner
 from piknik.render.plain import Renderer
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
@@ -51,7 +51,8 @@ def to_suffixed_file(d, s, data):
 class PGPWrapper(PGPSigner):
 
     def __init__(self, renderer, state, issue, home_dir=None):
-        super(PGPWrapper, self).__init__(home_dir=home_dir)
+        #super(PGPWrapper, self).__init__(home_dir=home_dir)
+        super(PGPWrapper, self).__init__(home_dir=home_dir, skip_verify=True)
         self.message_date = None
         self.messages = []
         self.part = []
@@ -123,19 +124,24 @@ class PGPWrapper(PGPSigner):
 gpg_home = os.environ.get('GPGHOME')
 
 
-def render(renderer, basket, state, issue, tags):
+def render(renderer, basket, issue, tags):
     renderer.apply_begin()
+    render_issue(renderer, basket, issue, tags)
+    renderer.apply_state_post(state)
+    renderer.apply_end()
+
+
+def render_issue(renderer, basket, issue, tags):
+    state = basket.get_state(issue.id)
     renderer.apply_issue(state, issue, tags)
     verifier = PGPWrapper(renderer, state, issue, home_dir=gpg_home)
     m = basket.get_msg(
-            arg.issue_id,
+            issue.id,
             envelope_callback=verifier.envelope_callback,
             message_callback=verifier.message_callback,
             post_callback=verifier.post_callback,
         )
     renderer.apply_issue_post(state, issue, tags)
-    renderer.apply_state_post(state)
-    renderer.apply_end()
 
 
 def render_states(renderer, basket, states):
@@ -152,8 +158,9 @@ def render_states(renderer, basket, states):
                 continue
             issue = basket.get(issue_id)
             tags = basket.tags(issue_id)
-            renderer.apply_issue(k, issue, tags)
-            renderer.apply_issue_post(k, issue, tags)
+            #renderer.apply_issue(k, issue, tags)
+            #renderer.apply_issue_post(k, issue, tags)
+            render_issue(renderer, basket, issue, tags)
 
         renderer.apply_state_post(k)
 
@@ -190,10 +197,9 @@ def main():
 
     issue = basket.get(arg.issue_id)
     tags = basket.tags(arg.issue_id)
-    state = basket.get_state(arg.issue_id)
 
     #globals()['render_' + arg.renderer](basket, state, issue, tags)
-    render(renderer, basket, state, issue, tags)
+    render(renderer, basket, issue, tags)
     
 
 if __name__ == '__main__':

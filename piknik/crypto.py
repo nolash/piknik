@@ -17,13 +17,14 @@ logging.getLogger('gnupg').setLevel(logging.ERROR)
 
 class PGPSigner:
 
-    def __init__(self, home_dir=None, default_key=None, passphrase=None, use_agent=False):
+    def __init__(self, home_dir=None, default_key=None, passphrase=None, use_agent=False, skip_verify=False):
         self.gpg = gnupg.GPG(gnupghome=home_dir)
         self.default_key = default_key
         self.passphrase = passphrase
         self.use_agent = use_agent
         self.__envelope_state = -1 # -1 not in envelope, 0 in outer envelope, 1 inner envelope, not (yet) valid, 2 envelope valid (with signature)
         self.__envelope = None
+        self.__skip_verify = skip_verify
 
 
     def sign(self, msg, passphrase=None): # msg = IssueMessage object
@@ -79,7 +80,10 @@ class PGPSigner:
         if r.status == 'no public key':
             logg.warning('public key for {} not found, cannot verify'.format(r.fingerprint))
         elif r.status != 'signature valid':
-            raise VerifyError('invalid signature')
+            if self.__skip_verify:
+                logg.warning('invalid signature for message {}'.format(message_id))
+            else:
+                raise VerifyError('invalid signature for message {}'.format(message_id))
         else:
             logg.debug('signature ok from {}'.format(r.fingerprint))
             envelope.valid = True

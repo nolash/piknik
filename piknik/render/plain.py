@@ -16,9 +16,9 @@ class Renderer(BaseRenderer):
 
 
     def apply_issue(self, state, issue, tags, w=sys.stdout):
-        w.write("""id: {}
-title: {}
+        w.write("""title: {}
 tags: {}
+id: {}
 
 """.format(
         issue.id,

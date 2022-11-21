@@ -4,7 +4,7 @@ import os
 
 # external imports
 import dominate
-from dominate.tags import div, p, a, meta, ul, ol, li, h1, h2, link
+from dominate.tags import div, p, a, meta, ul, ol, li, h1, h2, link, dl, dd, dt, img
 from mimeparse import parse_mime_type
 
 # local imports
@@ -56,8 +56,42 @@ class Renderer(BaseRenderer):
             close = True
         r = dominate.document(title='issue: {} ({})'.format(issue.title, issue.id))
         r.add(h1(issue.title))
+
+        r_l = dl()
+        r_l.add(dt('id'))
+        r_l.add(dd(issue.id))
+
+        r_l.add(dt('tags'))
+        r_r = ul()
+        for v in tags:
+            if v == '(UNTAGGED)':
+                continue
+            r_r.add(li(v))
+
+        assigned = issue.get_assigned()
+        r_l.add(dd(r_r))
+    
+        r_l.add(dt('assigned to'))
+        if len(assigned) == 0:
+            r_l.add(dd('not assigned'))
+        else:
+            owner = issue.owner()
+            r_r = ul()
+            for v in assigned:
+                o = v[0]
+                s = o.id()
+                if o == owner:
+                    s += ' (owner)'
+                r_r.add(li(s))
+            r_l.add(dd(r_r))
+
+        r.add(r_l)
+
+        for i, v in enumerate(self.message_buf):
+            r.add(p(v))
+
         w.write(r.render())
-       
+
         if close:
             w.close()
 
@@ -65,6 +99,8 @@ class Renderer(BaseRenderer):
     def apply_message_post(self, state, issue, tags, message, message_from, message_date, message_id, message_valid, w=sys.stdout):
         #r = ol()
         #w.write(self.message_buf.render())
+        
+
         pass
 
 
@@ -72,11 +108,26 @@ class Renderer(BaseRenderer):
         m = parse_mime_type(message.get_content_type())
         filename = message.get_filename()
 
+        r = div(_id=issue.id + '.' + message_id)
         if filename == None:
             v = message.get_payload()
             if message.get('Content-Transfer-Encoding') == 'BASE64':
                 v = b64decode(v).decode()
-            self.message_buf.append(p(v))
+            r.add(p(v))
+
+        else:
+            v = message.get_payload()
+            if m[0] == 'image':
+                img_src = 'data:{}/{};base64,'.format(m[0], m[1])
+                img_src += v
+                r.add(p(img(src=img_src)))
+
+        self.message_buf.append(r)
+
+        #for i, v in enumerate(self.message_buf):
+        #    r.add(p(v))
+        #w.write(r.render())
+
 
 
     def apply_end(self, w=sys.stdout):
