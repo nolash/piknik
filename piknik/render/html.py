@@ -19,6 +19,7 @@ class Renderer(BaseRenderer):
         self.state_buf = []
         self.message_buf = []
         self.outdir = outdir
+        self.last_message_id = None
 
 
     def apply_state_post(self, state, w=sys.stdout):
@@ -108,6 +109,10 @@ class Renderer(BaseRenderer):
         m = parse_mime_type(message.get_content_type())
         filename = message.get_filename()
 
+        if message_id != self.last_message_id:
+            self.message_buf.append(div('--- ' + str(message_date), _id=issue.id))
+            self.last_message_id = message_id
+
         r = div(_id=issue.id + '.' + message_id)
         if filename == None:
             v = message.get_payload()
@@ -121,6 +126,9 @@ class Renderer(BaseRenderer):
                 img_src = 'data:{}/{};base64,'.format(m[0], m[1])
                 img_src += v
                 r.add(p(img(src=img_src)))
+            else:
+                data_src = 'data:application/octet-stream;base64,' + v
+                r.add(a(filename, download=filename, href=data_src))
 
         self.message_buf.append(r)
 
