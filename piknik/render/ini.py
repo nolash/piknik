@@ -15,3 +15,11 @@ class Renderer(BaseRenderer):
 
     def apply_state_post(self, state, w=sys.stdout):
         w.write('\n')
+
+
+    def apply_message_part(self, state, issue, envelope, message, message_from, message_date, message_id, message_valid, dump_dir=None, w=sys.stdout):
+        pass
+
+
+    def apply_message_post(self, state, issue, tags, message, message_from, message_date, message_id, message_valid, w=sys.stdout):
+        pass

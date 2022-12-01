@@ -96,5 +96,6 @@ class TestMsg(unittest.TestCase):
         m = b.get_msg(v, envelope_callback=render_envelope, message_callback=render_message)
 
 
+
 if __name__ == '__main__':
     unittest.main()

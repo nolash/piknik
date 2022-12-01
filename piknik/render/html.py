@@ -1,6 +1,7 @@
 # standard imports
 import sys
 import os
+import logging
 
 # external imports
 import dominate
@@ -9,6 +10,8 @@ from mimeparse import parse_mime_type
 
 # local imports
 from .base import Renderer as BaseRenderer
+
+logg = logging.getLogger(__name__)
 
 
 class Renderer(BaseRenderer):
@@ -20,6 +23,7 @@ class Renderer(BaseRenderer):
         self.message_buf = []
         self.outdir = outdir
         self.last_message_id = None
+        self.msg_idx = 0
 
 
     def apply_state_post(self, state, w=sys.stdout):
@@ -42,6 +46,7 @@ class Renderer(BaseRenderer):
         while True:
             try:
                 v = self.message_buf.pop(0)
+                logg.debug('msgd {} {}'.format(issue.id, str(v)))
                 r_l.add(v)
             except IndexError:
                 break
@@ -100,8 +105,7 @@ class Renderer(BaseRenderer):
     def apply_message_post(self, state, issue, tags, message, message_from, message_date, message_id, message_valid, w=sys.stdout):
         #r = ol()
         #w.write(self.message_buf.render())
-        
-
+        self.msg_idx = 0
         pass
 
 
@@ -110,30 +114,17 @@ class Renderer(BaseRenderer):
         filename = message.get_filename()
 
         if message_id != self.last_message_id:
-            self.message_buf.append(div('--- ' + str(message_date), _id=issue.id))
+            s = '--- {} @ {}'.format(message_from, message_date)
+            self.message_buf.append(div(s, _id=issue.id))
             self.last_message_id = message_id
 
-        r = div(_id=issue.id + '.' + message_id)
+        r = div(_id=issue.id + '.' + message_id + '.' + str(self.msg_idx))
+        self.msg_idx += 1
         if filename == None:
             v = message.get_payload()
             if message.get('Content-Transfer-Encoding') == 'BASE64':
                 v = b64decode(v).decode()
             r.add(p(v))
-
-        else:
-            v = message.get_payload()
-            if m[0] == 'image':
-                img_src = 'data:{}/{};base64,'.format(m[0], m[1])
-                img_src += v
-                r.add(p(img(src=img_src)))
-            else:
-                data_src = 'data:application/octet-stream;base64,' + v
-                r.add(a(filename, download=filename, href=data_src))
-
-        self.message_buf.append(r)
-
-        #for i, v in enumerate(self.message_buf):
-        #    r.add(p(v))
         #w.write(r.render())
 
 

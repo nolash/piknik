@@ -27,6 +27,17 @@ class PGPSigner:
         self.__skip_verify = skip_verify
 
 
+    def set_from(self, msg, passphrase=None):
+        r = None
+        for v in self.gpg.list_keys(True):
+            if self.default_key == None or v['fingerprint'].upper() == self.default_key.upper():
+                r = v['uids'][0]
+                break
+        if r == None:
+            raise UnknownIdentityError('no signing keys found')
+        msg.add_header('From', r)
+
+
     def sign(self, msg, passphrase=None): # msg = IssueMessage object
         m = Message()
         v = msg.as_string()
@@ -37,6 +48,7 @@ class PGPSigner:
         fn = '{}.asc'.format(msg.get('X-Piknik-Msg-Id'))
         ms.add_header('Content-Disposition', 'attachment', filename=fn)
 
+        self.set_from(msg, passphrase=passphrase)
         sig = self.gpg.sign(v, keyid=self.default_key, detach=True, passphrase=self.passphrase)
         ms.set_payload(str(sig))
     
@@ -58,6 +70,9 @@ class PGPSigner:
 
 
     def message_callback(self, envelope, msg, message_id):
+        if msg.get('From') != None:
+            envelope.sender = msg.get('From')
+
         if self.__envelope_state == 0:
             self.__envelope_state = 1
             self.__envelope = msg
@@ -87,7 +102,7 @@ class PGPSigner:
         else:
             logg.debug('signature ok from {}'.format(r.fingerprint))
             envelope.valid = True
-        envelope.sender = r.fingerprint
+        #envelope.sender = r.fingerprint
         self.__envelope_state = 2
 
         return (envelope, msg,)

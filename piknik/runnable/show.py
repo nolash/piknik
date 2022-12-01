@@ -64,9 +64,9 @@ class PGPWrapper(PGPSigner):
         self.issue = issue
 
 
-    def render_message(self, envelope, messages, message_date, message_id, dump_dir=None, w=sys.stdout):
+    def render_message(self, envelope, messages, message_sender, message_date, message_id, dump_dir=None, w=sys.stdout):
         for message in messages:
-            self.renderer.apply_message_part(self.state, self.issue, envelope, message, self.sender, message_date, message_id, self.valid, dump_dir=dump_dir, w=w)
+            self.renderer.apply_message_part(self.state, self.issue, envelope, message, message_sender, message_date, message_id, self.valid, dump_dir=dump_dir, w=w)
         #valid = '[++]'
         #if not self.valid:
         #    valid = '[!!]'
@@ -83,6 +83,7 @@ class PGPWrapper(PGPSigner):
         (envelope, message) = super(PGPWrapper, self).message_callback(envelope, message, message_id)
 
         if envelope != None and not envelope.resolved:
+            logg.debug('have sender {}'.format(self.sender))
             self.sender = envelope.sender
             self.valid = envelope.valid
             self.resolved = True
@@ -95,7 +96,7 @@ class PGPWrapper(PGPSigner):
             if message.get('Content-Type') == 'application/pgp-signature':
                 
                 #self.render_message(envelope, self.message, self.message_id, dump_dir=dump_dir)
-                self.messages.append((envelope, self.part, self.message_date, self.message_id,))
+                self.messages.append((envelope, self.part, self.sender, self.message_date, self.message_id,))
                 self.part = []
                 self.message_id = None
                 self.message_date = None
@@ -118,7 +119,7 @@ class PGPWrapper(PGPSigner):
             rg = range(len(self.messages)-1, -1, -1)
         for i in rg:
             v = self.messages[i]
-            self.render_message(v[0], v[1], v[2], v[3], dump_dir=dump_dir)
+            self.render_message(v[0], v[1], v[2], v[3], v[4], dump_dir=dump_dir)
 
 
 gpg_home = os.environ.get('GPGHOME')
@@ -148,6 +149,7 @@ def render_states(renderer, basket, states):
     renderer.apply_begin()
 
     for k in basket.states():
+        logg.debug('processing state {}'.format(k))
         if k == 'FINISHED' and not arg.show_finished:
             continue
 
@@ -165,6 +167,7 @@ def render_states(renderer, basket, states):
         renderer.apply_state_post(k)
 
     renderer.apply_end()
+
 
 
 def process_states(renderer, basket):
@@ -188,12 +191,16 @@ def process_states(renderer, basket):
 
 def main():
     if arg.issue_id == None:
-        import piknik.render.html
-        renderer = piknik.render.html.Renderer()
+        #import piknik.render.html
+        #renderer = piknik.render.html.Renderer()
+        import piknik.render.ini
+        renderer = piknik.render.ini.Renderer()
         return process_states(renderer, basket)
 
     import piknik.render.html
     renderer = piknik.render.html.Renderer()
+    #import piknik.render.ini
+    #renderer = piknik.render.ini.Renderer()
 
     issue = basket.get(arg.issue_id)
     tags = basket.tags(arg.issue_id)
