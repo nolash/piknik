@@ -8,7 +8,7 @@ class Renderer:
 
     def __init__(self, basket, accumulator=None):
         self.b = basket
-        self.e = None
+        #self.e = None
         self.a = accumulator
 
 
@@ -19,13 +19,11 @@ class Renderer:
 
 
     def apply_envelope_pre(self, state, issue, tags, envelope, accumulator=None):
-        #logg.debug('entering envelope {}'.format(envelope))
-        self.e = envelope
+        pass
 
 
     def apply_envelope_post(self, state, issue, tags, envelope, accumulator=None):
-        #logg.debug('leaving envelope {}'.format(self.e))
-        self.e = None
+        pass
 
     
     def apply_envelope(self, state, issue, tags, envelope, accumulator=None):

@@ -46,8 +46,12 @@ class IssueMessage:
         message_ids = []
         message_id = None
         envelope = None
+        initial = False
 
         for m in msg.walk():
+            if not initial:
+                initial = True
+                continue
             env_header = m.get('X-Piknik-Envelope')
             if env_header != None:
                 if envelope_callback != None:
@@ -62,8 +66,8 @@ class IssueMessage:
             if new_message_id != None:
                 message_id = new_message_id
                 message_ids.append(message_id)
-
-            message_callback(envelope, m, message_id)
+            else:
+                message_callback(envelope, m, message_id)
 
         if post_callback != None:
             post_callback(message_ids)
