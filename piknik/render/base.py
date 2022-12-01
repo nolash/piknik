@@ -30,15 +30,15 @@ class Renderer:
         pass
 
 
-    def apply_message_pre(self, state, issue, tags, envelope, message, accumulator=None):
+    def apply_message_pre(self, state, issue, tags, envelope, message, message_id, accumulator=None):
         pass
 
 
-    def apply_message_post(self, state, issue, tags, envelope, message, accumulator=None):
+    def apply_message_post(self, state, issue, tags, envelope, message, message_id, accumulator=None):
         pass
 
     
-    def apply_message(self, state, issue, tags, envelope, message, accumulator=None):
+    def apply_message(self, state, issue, tags, envelope, message, message_id, accumulator=None):
         pass
 
 
@@ -61,11 +61,11 @@ class Renderer:
             self.__add(r)
 
         def message_callback(envelope, message, message_id):
-            r = self.apply_message_pre(state, issue, tags, envelope, message, accumulator=accumulator)
+            r = self.apply_message_pre(state, issue, tags, envelope, message, message_id, accumulator=accumulator)
             self.__add(r)
-            r = self.apply_message(state, issue, tags, envelope, message, accumulator=accumulator)
+            r = self.apply_message(state, issue, tags, envelope, message, message_id, accumulator=accumulator)
             self.__add(r)
-            r = self.apply_message_post(state, issue, tags, envelope, message, accumulator=accumulator)
+            r = self.apply_message_post(state, issue, tags, envelope, message, message_id, accumulator=accumulator)
             self.__add(r)
 
         #for msg in self.b.get_msg(issue.id, envelope_callback=envelope_callback, message_callback=message_callback):

@@ -47,35 +47,55 @@ class TestRenderer(Renderer):
 
     def __init__(self, basket, accumulator=None):
         super(TestRenderer, self).__init__(basket, accumulator=accumulator)
-        self.c = 0
+        self.p = 0
+        self.e = 0
 
 
-    def apply_message(self, state, issue, tags, envelope, message, accumulator=None):
-        r = self.c
-        self.c += 1
+    def apply_envelope(self, state, issue, tags, envelope, accumulator=None):
+        r = self.e
+        self.e += 1
         return r
+
+
+    def apply_message(self, state, issue, tags, envelope, message, message_id, accumulator=None):
+        r = self.p
+        self.p += 1
+        return r
+
+
+class TestRendererComposite(TestRenderer):
+
+    def __init__(self, basket, accumulator=None):
+        super(TestRendererComposite, self).__init__(basket, accumulator=accumulator)
+        self.last_message_id = None
+        self.m = []
+
+
+    def apply_message_post(self, state, issue, tags, envelope, message, message_id, accumulator=None):
+        if self.last_message_id != message_id:
+            self.m.append(message_id)
+            self.last_message_id = message_id
 
 
 class TestMsg(unittest.TestCase):
 
     def setUp(self):
         self.acc = []
-        def accumulate(v):
-            self.acc.append(v)
-
-        #(self.crypto, self.gpg, self.gpg_dir) = pgp_setup()
         self.store = TestStates()
-        self.b = Basket(self.store, message_wrapper=test_wrapper) #, message_wrapper=self.crypto.sign)
+        self.b = Basket(self.store, message_wrapper=test_wrapper)
         self.render_dir = tempfile.mkdtemp()
-        self.renderer = TestRenderer(self.b, accumulator=accumulate) #outdir=self.render_dir)
+
+
+    def accumulate(self, v):
+        self.acc.append(v)
 
 
     def tearDown(self):
-        #logg.debug('look in {}'.format(self.render_dir))
         shutil.rmtree(self.render_dir)
 
 
     def test_idlepass(self):
+        renderer = TestRenderer(self.b, accumulator=self.accumulate)
         issue_one = Issue('foo')
         self.b.add(issue_one)
 
@@ -84,8 +104,24 @@ class TestMsg(unittest.TestCase):
 
         m = self.b.msg(v, 's:foo')
 
-        self.renderer.apply()
-        self.assertEqual(len(self.acc), 1)
+        renderer.apply()
+        self.assertEqual(len(self.acc), 2)
+        self.assertEqual(renderer.e, 1)
+        self.assertEqual(renderer.p, 1)
+
+
+    def test_composite(self):
+        renderer = TestRendererComposite(self.b, accumulator=self.accumulate)
+        issue_one = Issue('foo')
+        self.b.add(issue_one)
+
+        issue_two = Issue('bar')
+        v = self.b.add(issue_two)
+
+        m = self.b.msg(v, 's:foo')
+
+        renderer.apply()
+        self.assertEqual(len(renderer.m), 1)
 
 
 if __name__ == '__main__':
