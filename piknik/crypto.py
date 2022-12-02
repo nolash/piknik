@@ -24,6 +24,7 @@ class PGPSigner(Wrapper):
         self.passphrase = passphrase
         self.use_agent = use_agent
         self.sign_material = None
+        self.pre_buffer = []
         self.__skip_verify = skip_verify
 
 
@@ -79,7 +80,7 @@ class PGPSigner(Wrapper):
             return (self.envelope, msg,)
 
         if msg.get('Content-Type') != 'application/pgp-signature':
-            self.add(self.envelope, message_id, msg)
+            self.pre_buffer.append((self.envelope, message_id, msg,))
             return (self.envelope, msg,)
 
         v = self.sign_material.as_string()
@@ -104,7 +105,15 @@ class PGPSigner(Wrapper):
         else:
             logg.debug('signature ok from {}'.format(r.fingerprint))
             self.envelope.valid = True
-        self.envelope.sender = r.fingerprint
+        if self.envelope.sender == None:
+            self.envelope.sender = r.fingerprint
         self.envelope_state = 2
+        
+        while True:
+            try:
+                v = self.pre_buffer.pop(0)
+                self.add(v[0], v[1], v[2])
+            except IndexError:
+                break
 
         return (self.envelope, msg,)
