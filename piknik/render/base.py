@@ -86,7 +86,7 @@ class Renderer:
         def message_callback(message, message_id, message_date):
             envelope = None
             if self.w == None:
-                logg.warning('no wrapper defined. no message parts will be output {}'.format(message))
+                logg.warning('no wrapper defined. no message parts will be output')
                 return (envelope, message,)
 
             (envelope, message) = self.w.process_message(message, message_id, message_date)
