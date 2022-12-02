@@ -25,8 +25,11 @@ class Wrapper:
         self.envelope_state = 0
 
 
-    def process_message(self, envelope, msg, message_id, message_data):
-        raise NotImplementedError()
+    def process_message(self, envelope, msg, message_id, message_date):
+        if msg.get('X-Piknik-Msg-Id') == None:
+            self.add(envelope, message_id, msg)
+        return (envelope, msg,)
+        #raise NotImplementedError()
 
 
     def add(self, envelope, message_id, message):

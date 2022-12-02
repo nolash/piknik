@@ -56,6 +56,10 @@ class Renderer:
         pass
 
 
+    def apply_message_part(self, state, issue, tags, envelope, message, message_date, message_content, accumulator=None):
+        pass
+
+
     def apply_issue_pre(self, state, issue, tags, accumulator=None):
         pass
 
@@ -81,10 +85,11 @@ class Renderer:
 
         def message_callback(message, message_id, message_date):
             envelope = None
-            if self.w != None:
-                (envelope, message) = self.w.process_message(envelope, message, message_id, message_date)
-            else:
-                logg.warning('no wrapper defined. no message parts will be output')
+            if self.w == None:
+                logg.warning('no wrapper defined. no message parts will be output {}'.format(message))
+                return (envelope, message,)
+
+            (envelope, message) = self.w.process_message(envelope, message, message_id, message_date)
 
             initial = True
             while True:

@@ -18,6 +18,7 @@ from piknik import (
         )
 from piknik.msg import IssueMessage
 from piknik.render.base import Renderer
+from piknik.wrap import Wrapper
 
 # test imports
 from tests.common import TestStates
@@ -46,7 +47,7 @@ def test_unwrapper(msg, message_callback=None, part_callback=None):
 class TestRenderer(Renderer):
 
     def __init__(self, basket, accumulator=None):
-        super(TestRenderer, self).__init__(basket, accumulator=accumulator)
+        super(TestRenderer, self).__init__(basket, accumulator=accumulator, wrapper=Wrapper())
         self.p = 0
         self.e = 0
 
@@ -57,10 +58,13 @@ class TestRenderer(Renderer):
         return r
 
 
-    def apply_message(self, state, issue, tags, envelope, message, message_id, accumulator=None):
+#    def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
+    def apply_message_part(self, state, issue, tags, envelope, message, message_date, message_content, accumulator=None):
         r = self.p
         self.p += 1
         return r
+
+
 
 
 class TestRendererComposite(TestRenderer):
@@ -71,7 +75,7 @@ class TestRendererComposite(TestRenderer):
         self.m = []
 
 
-    def apply_message_post(self, state, issue, tags, envelope, message, message_id, accumulator=None):
+    def apply_message_post(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
         if self.last_message_id != message_id:
             self.m.append(message_id)
             self.last_message_id = message_id
@@ -95,6 +99,7 @@ class TestMsg(unittest.TestCase):
 
 
     def test_idlepass(self):
+        wrapper = Wrapper()
         renderer = TestRenderer(self.b, accumulator=self.accumulate)
         issue_one = Issue('foo')
         self.b.add(issue_one)
