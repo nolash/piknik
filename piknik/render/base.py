@@ -89,7 +89,7 @@ class Renderer:
                 logg.warning('no wrapper defined. no message parts will be output {}'.format(message))
                 return (envelope, message,)
 
-            (envelope, message) = self.w.process_message(envelope, message, message_id, message_date)
+            (envelope, message) = self.w.process_message(message, message_id, message_date)
 
             initial = True
             while True:

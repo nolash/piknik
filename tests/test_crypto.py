@@ -10,6 +10,7 @@ from email.message import Message
 from piknik import Basket
 from piknik import Issue
 from piknik.msg import IssueMessage
+from piknik.msg import MessageEnvelope
 
 # test imports
 from tests.common import TestStates
@@ -51,7 +52,9 @@ class TestMsg(unittest.TestCase):
 
         o = Issue('foo')
         m = self.crypto.sign(m, passphrase='foo')
-        r = IssueMessage.parse(o, str(m), envelope_callback=self.crypto.envelope_callback, message_callback=self.crypto.message_callback)
+        self.crypto.envelope = MessageEnvelope(m)
+        self.crypto.envelope_state = 0
+        r = IssueMessage.parse(o, str(m), envelope_callback=self.crypto.process_envelope, message_callback=self.crypto.process_message)
 
 
     def test_wrap_double_sig(self):
@@ -95,9 +98,9 @@ class TestMsg(unittest.TestCase):
         m = self.crypto.sign(m, passphrase='foo')
         mp.attach(m)
 
-        self.crypto.envelope_callback(mp, 'pgp')
-        r = self.crypto.message_callback(mp, m, 'foo')
-        r = self.crypto.message_callback(mp, m, 'bar')
+        self.crypto.process_envelope(mp, 'pgp')
+        r = self.crypto.process_message(mp, m, 'foo')
+        r = self.crypto.process_message(mp, m, 'bar')
 
 
     # TODO: assert

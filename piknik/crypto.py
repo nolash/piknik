@@ -70,7 +70,7 @@ class PGPSigner(Wrapper):
         return self.envelope
 
 
-    def process_message(self, envelope, msg, message_id, message_date):
+    def process_message(self, msg, message_id, message_date):
         if msg.get('From') != None:
             self.envelope.sender = msg.get('From')
 

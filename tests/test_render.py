@@ -58,7 +58,6 @@ class TestRenderer(Renderer):
         return r
 
 
-#    def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
     def apply_message_part(self, state, issue, tags, envelope, message, message_date, message_content, accumulator=None):
         r = self.p
         self.p += 1
