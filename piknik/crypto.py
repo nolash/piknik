@@ -17,8 +17,8 @@ logging.getLogger('gnupg').setLevel(logging.ERROR)
 
 class PGPSigner(Wrapper):
 
-    def __init__(self, home_dir=None, default_key=None, passphrase=None, use_agent=False, skip_verify=False):
-        super(PGPSigner, self).__init__()
+    def __init__(self, home_dir=None, dump_dir=None, default_key=None, passphrase=None, use_agent=False, skip_verify=False):
+        super(PGPSigner, self).__init__(dump_dir=dump_dir)
         self.gpg = gnupg.GPG(gnupghome=home_dir)
         self.default_key = default_key
         self.passphrase = passphrase

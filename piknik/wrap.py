@@ -23,6 +23,7 @@ class Wrapper:
     def process_envelope(self, msg, env_header):
         self.envelope = MessageEnvelope(msg)
         self.envelope_state = 0
+        return self.envelope
 
 
     def process_message(self, msg, message_id, message_date):

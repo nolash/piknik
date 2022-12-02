@@ -16,20 +16,27 @@ logg = logging.getLogger(__name__)
 
 class Accumulator:
 
-    def __init__(self):
+    def __init__(self, w=sys.stdout):
         self.doc = None
         self.category = ul(_id='state_list')
         self.issue = None
+        self.msg = None
+        self.w = w
         #self.message = None
 
 
-    def add(self, v, w=sys.stdout):
+    def add(self, v, w=None):
+        if w == None:
+            w = self.w
         if len(v) == 0:
             self.doc.add(self.category)
+            if self.msg != None:
+                self.doc.add(self.msg)
             w.write(self.doc.render())
             return
 
         v_id = getattr(v, 'id', '')
+        logg.debug('add id {}'.format(v_id))
         if len(v_id) > 1:
             if v_id[:2] == 's_':
                 if self.issue != None:
@@ -41,6 +48,9 @@ class Accumulator:
                 self.issue.add(v)
             elif v_id[:4] == 'd_i_':
                 self.category = v
+                self.msg = ol(_id='message_list')
+            elif v_id[:2] == 'm_':
+                self.msg.add(li(v))
         else:
             self.doc = v
 
@@ -73,7 +83,6 @@ class Renderer(BaseRenderer):
             s = issue.title
             u = a(s, href=issue.id + '.html')
             return li(u, _id='i_' + issue.id)
-        
 
         r = div(_id='d_i_' + issue.id)
 
@@ -113,6 +122,34 @@ class Renderer(BaseRenderer):
         self.add(r)
 
         super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)
+
+    
+    def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
+        import uuid
+        rnd = str(uuid.uuid4())
+        r = div(_id='m_' + message_id + '_' + rnd)
+
+        s = dd()
+        s.add(dt('Date'))
+        s.add(dd(str(message_date)))
+
+        v = envelope.sender
+        if v == None:
+            v = '(unknown)'
+        else:
+            if envelope.valid:
+                v += ' (!!)'
+            else:
+                v += ' (??)'
+        s.add(dt('By'))
+        s.add(dd(v))
+        r.add(s)
+
+        s = div(message.get_payload())
+        r.add(s)
+        
+        return r
+
 
 #    def apply_state_post(self, state, w=sys.stdout):
 #        r = div(_id='state_' + state)
@@ -222,7 +259,8 @@ class Renderer(BaseRenderer):
 
 
     def apply_end(self, accumulator=None):
-        return ()
+        self.add(())
+        return None
 
 
 #    def apply_end(self, w=sys.stdout):
