@@ -22,6 +22,7 @@ class Accumulator:
         self.issue = None
         #self.message = None
 
+
     def add(self, v, w=sys.stdout):
         if len(v) == 0:
             self.doc.add(self.category)
@@ -38,6 +39,8 @@ class Accumulator:
             elif v_id[:2] == 'i_':
                 logg.debug('issue now')
                 self.issue.add(v)
+            elif v_id[:4] == 'd_i_':
+                self.category = v
         else:
             self.doc = v
 
@@ -69,10 +72,47 @@ class Renderer(BaseRenderer):
         if self.render_mode == 1:
             s = issue.title
             u = a(s, href=issue.id + '.html')
-            v = li(u, _id='i_' + issue.id)
+            return li(u, _id='i_' + issue.id)
+        
 
-        return v
+        r = div(_id='d_i_' + issue.id)
 
+        s = h1(issue.title)
+        r.add(s)
+        
+        s = dd()
+        s.add(dt('issue id'))
+        s.add(dd(issue.id))
+
+        s.add(dt('tags'))
+        r_r = ul()
+        for v in tags:
+            if v == '(UNTAGGED)':
+                continue
+            r_r.add(li(v))
+
+        assigned = issue.get_assigned()
+        s.add(dd(r_r))
+    
+        s.add(dt('assigned to'))
+        if len(assigned) == 0:
+            s.add(dd('not assigned'))
+        else:
+            owner = issue.owner()
+            r_r = ul()
+            for v in assigned:
+                o = v[0]
+                s = o.id()
+                if o == owner:
+                    s += ' (owner)'
+                r_r.add(li(s))
+            s.add(dd(r_r))
+
+        r.add(s)
+
+        self.add(r)
+
+        super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)
 
 #    def apply_state_post(self, state, w=sys.stdout):
 #        r = div(_id='state_' + state)
