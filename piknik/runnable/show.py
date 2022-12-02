@@ -15,7 +15,7 @@ from piknik.store import FileStoreFactory
 from piknik.crypto import PGPSigner
 from piknik.render.plain import Renderer
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
@@ -47,12 +47,9 @@ def to_suffixed_file(d, s, data):
     return r[1]
 
 
-# TODO can implement as email parser api instead?
 class PGPWrapper(PGPSigner):
 
-    #def __init__(self, renderer, state, issue, home_dir=None):
     def __init__(self, state, issue, home_dir=None):
-        #super(PGPWrapper, self).__init__(home_dir=home_dir)
         super(PGPWrapper, self).__init__(home_dir=home_dir, skip_verify=True)
         self.message_date = None
         self.messages = []
@@ -60,18 +57,8 @@ class PGPWrapper(PGPSigner):
         self.message_id = None
         self.sender = None
         self.valid = False
-        #self.renderer = renderer
         self.state = state
         self.issue = issue
-
-
-#    def render_message(self, envelope, messages, message_sender, message_date, message_id, dump_dir=None, w=sys.stdout):
-#        for message in messages:
-#            self.renderer.apply_message_part(self.state, self.issue, envelope, message, message_sender, message_date, message_id, self.valid, dump_dir=dump_dir, w=w)
-#        #valid = '[++]'
-#        #if not self.valid:
-#        #    valid = '[!!]'
-#        self.renderer.apply_message_post(self.state, self.issue, envelope, message, self.sender, message_date, message_id, self.valid, w=w)
 
 
     def envelope_callback(self, envelope, envelope_type):
@@ -208,7 +195,7 @@ def main():
     verifier = PGPWrapper(state, issue, home_dir=gpg_home)
 
     import piknik.render.plain
-    renderer = piknik.render.plain.Renderer(basket, envelope_callback=verifier.envelope_callback, message_callback=verifier.message_callback)
+    renderer = piknik.render.plain.Renderer(basket, wrapper=verifier) #envelope_callback=verifier.envelope_callback, message_callback=verifier.message_callback)
 
     renderer.apply_issue(state, issue, tags)
     

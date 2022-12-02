@@ -68,8 +68,7 @@ class IssueMessage:
                 message_ids.append(message_id)
                 d = m.get('Date')
                 message_date = parsedate_to_datetime(d)
-            else:
-                message_callback(envelope, m, message_id, message_date)
+            message_callback(m, message_id, message_date)
 
         if post_callback != None:
             post_callback(message_ids)

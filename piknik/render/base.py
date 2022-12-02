@@ -14,12 +14,10 @@ def stream_accumulator(v, w=sys.stdout):
 
 class Renderer:
 
-    def __init__(self, basket, accumulator=None, envelope_callback=None, message_callback=None):
+    def __init__(self, basket, accumulator=None, wrapper=None):
         self.b = basket
-        #self.e = None
         self.a = accumulator
-        self.message_callback = message_callback
-        self.envelope_callback = envelope_callback
+        self.w = wrapper
 
 
     def add(self, v, accumulator=None):
@@ -49,7 +47,11 @@ class Renderer:
     def apply_message_post(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
         pass
 
-    
+ 
+    def apply_message_post(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
+        pass
+
+   
     def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
         pass
 
@@ -65,8 +67,8 @@ class Renderer:
     def apply_issue(self, state, issue, tags, accumulator=None):
 
         def envelope_callback(envelope, envelope_type):
-            if self.envelope_callback != None:
-                envelope = self.envelope_callback(envelope, envelope_type)
+            if self.w != None:
+                envelope = self.w.process_envelope(envelope, envelope_type)
             else:
                 envelope = MessageEnvelope(envelope)
             r = self.apply_envelope_pre(state, issue, tags, envelope, accumulator=accumulator)
@@ -77,19 +79,32 @@ class Renderer:
             self.add(r)
             return envelope
 
-        def message_callback(envelope, message, message_id, message_date):
-            if self.message_callback != None:
-                (envelope, message) = self.message_callback(envelope, message, message_id, message_date)
-            r = self.apply_message_pre(state, issue, tags, envelope, message, message_id, message_date, accumulator=accumulator)
-            self.add(r)
-            r = self.apply_message(state, issue, tags, envelope, message, message_id, message_date, accumulator=accumulator)
-            self.add(r)
-            r = self.apply_message_post(state, issue, tags, envelope, message, message_id, message_date, accumulator=accumulator)
-            self.add(r)
+        def message_callback(message, message_id, message_date):
+            envelope = None
+            if self.w != None:
+                (envelope, message) = self.w.process_message(envelope, message, message_id, message_date)
+            else:
+                logg.warning('no wrapper defined. no message parts will be output')
+
+            initial = True
+            while True:
+                v = self.w.pop()
+                if v == None:
+                    break
+                if initial:
+                    r = self.apply_message_pre(state, issue, tags, envelope, message, message_id, message_date, accumulator=accumulator)
+                    self.add(r)
+                    r = self.apply_message(state, issue, tags, envelope, message, message_id, message_date, accumulator=accumulator)
+                    self.add(r)
+                    r = self.apply_message_post(state, issue, tags, envelope, message, message_id, message_date, accumulator=accumulator)
+                    self.add(r)
+                    initial = False
+
+                r = self.apply_message_part(state, issue, tags, envelope, message, message_date, v)
+                self.add(r)
+
             return (envelope, message,)
 
-        #for msg in self.b.get_msg(issue.id, envelope_callback=envelope_callback, message_callback=message_callback):
-        logg.debug('in msg')
         self.b.get_msg(issue.id, envelope_callback=envelope_callback, message_callback=message_callback)
 
 

@@ -5,8 +5,8 @@ from .base import stream_accumulator
 
 class Renderer(BaseRenderer):
 
-    def __init__(self, basket, accumulator=stream_accumulator):
-        super(Renderer, self).__init__(basket, accumulator=accumulator)
+    def __init__(self, basket, accumulator=stream_accumulator, **kwargs):
+        super(Renderer, self).__init__(basket, accumulator=accumulator, **kwargs)
 
 
     def apply_state(self, state, accumulator=None):

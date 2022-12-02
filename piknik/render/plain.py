@@ -1,5 +1,7 @@
 # standard imports
 import logging
+import tempfile
+import os
 
 # external imports
 from mimeparse import parse_mime_type
@@ -9,6 +11,19 @@ from .base import Renderer as BaseRenderer
 from .base import stream_accumulator
 
 logg = logging.getLogger(__name__)
+
+def to_suffixed_file(d, s, data):
+    (v, ext) = os.path.splitext(s)
+    r = tempfile.mkstemp(suffix=ext, dir=d)
+
+    f = os.fdopen(r[0], 'wb')
+    try:
+        f.write(data)
+    except TypeError:
+        f.write(data.encode('utf-8'))
+    f.close()
+
+    return r[1]
 
 
 class Renderer(BaseRenderer):
@@ -51,37 +66,29 @@ id: {}
 
     def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
         s = '\nmessage {} from {} {} - {}\n\n'.format(
-                message_date,
-                envelope.sender,
-                envelope.valid,
-                message_id,
-                )
-        self.add(s, accumulator=accumulator)
+            message_date,
+            envelope.sender,
+            envelope.valid,
+            message_id,
+            )
+        return s
 
 
-    def apply_message_part(self, state, issue, envelope, message, message_id, message_date, accumulator=None):
-        m = parse_mime_type(message.get_content_type())
-        filename = message.get_filename()
-
-        v = ''
-        if filename == None:
-            if m[0] == 'text':
-                if m[1] == 'plain':
-                    v = message.get_payload()
-                    if message.get('Content-Transfer-Encoding') == 'BASE64':
-                        v = b64decode(v).decode()
-                else:
-                    v = '[rich text]'
-        else:
+    def apply_message_part(self, state, issue, tags, envelope, message, message_date, message_content, accumulator=None):
+        if message_content['filename'] != None:
             if self.dump_dir != None:
-                v = message.get_payload()
-                if message.get('Content-Transfer-Encoding') == 'BASE64':
-                    v = b64decode(v).decode()
-                filename = to_suffixed_file(self.dump_dir, filename, v)
-            sz = message.get('Content-Length')
-            if sz == None:
+                filename = to_suffixed_file(self.dump_dir, message_content['filename'], message_content['contents'])
+            sz = message_content['size']
+            if sz == -1:
                 sz = 'unknown'
-            v = '[file: {}, type {}/{}, size: {}]'.format(filename, m[0], m[1], sz)
+            v = '[file: {}, type {}/{}, size: {}]'.format(
+                    message_content['filename'],
+                    message_content['type'][0],
+                    message_content['type'][1],
+                    sz,
+                    )
+        else:
+            v = message_content['contents']
 
         s = '\n\t' + v + '\n'
-        self.add(s, accumulator=accumulator)
+        return s

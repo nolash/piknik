@@ -9,7 +9,6 @@ import gnupg
 
 # local imports
 from piknik.error import VerifyError
-from piknik.msg import MessageEnvelope
 from piknik.wrap import Wrapper
 
 logg = logging.getLogger(__name__)
@@ -24,8 +23,7 @@ class PGPSigner(Wrapper):
         self.default_key = default_key
         self.passphrase = passphrase
         self.use_agent = use_agent
-        self.__envelope_state = -1 # -1 not in envelope, 0 in outer envelope, 1 inner envelope, not (yet) valid, 2 envelope valid (with signature)
-        self.__envelope = None
+        self.sign_material = None
         self.__skip_verify = skip_verify
 
 
@@ -42,7 +40,6 @@ class PGPSigner(Wrapper):
 
     def sign(self, msg, passphrase=None): # msg = IssueMessage object
         m = Message()
-        v = msg.as_string()
         m.set_type('multipart/relative')
         m.add_header('X-Piknik-Envelope', 'pgp')
         ms = Message()
@@ -51,6 +48,7 @@ class PGPSigner(Wrapper):
         ms.add_header('Content-Disposition', 'attachment', filename=fn)
 
         self.set_from(msg, passphrase=passphrase)
+        v = msg.as_string()
         sig = self.gpg.sign(v, keyid=self.default_key, detach=True, passphrase=self.passphrase)
         ms.set_payload(str(sig))
     
@@ -60,32 +58,32 @@ class PGPSigner(Wrapper):
         return m
 
     
-    def envelope_callback(self, msg, env_header):
-        self.__envelope = None
+    def process_envelope(self, msg, env_header):
+        self.envelope = None
         if env_header != 'pgp':
             raise VerifyError('expected envelope type "pgp", but got {}'.format(env_header))
-        if self.__envelope_state > -1 and self.__envelope_state < 2:
-            raise VerifyError('new envelope before previous was verified ({})'.format(self.__envelope_state))
-        self.__envelope = msg
-        self.__envelope_state = 0
-        return MessageEnvelope(msg)
+        if self.envelope_state > -1 and self.envelope_state < 2:
+            raise VerifyError('new envelope before previous was verified ({})'.format(self.envelope_state))
+        self.sign_material = None
+        super(PGPSigner, self).process_envelope(msg, env_header)
+        return self.envelope
 
 
-    def message_callback(self, envelope, msg, message_id, message_date):
+    def process_message(self, envelope, msg, message_id, message_date):
         if msg.get('From') != None:
-            envelope.sender = msg.get('From')
+            self.envelope.sender = msg.get('From')
 
-        if self.__envelope_state == 0:
-            self.add(message_id, msg)
-            self.__envelope_state = 1
-            self.__envelope = msg
-            return (envelope, msg,)
+        if self.envelope_state == 0:
+            self.envelope_state = 1
+            self.sign_material = msg
+            return (self.envelope, msg,)
 
         if msg.get('Content-Type') != 'application/pgp-signature':
-            self.add(message_id, msg)
-            return (envelope, msg,)
+            self.add(self.envelope, message_id, msg)
+            return (self.envelope, msg,)
 
-        v = self.__envelope.as_string()
+        v = self.sign_material.as_string()
+
         sig = msg.get_payload()
         (fd, fp) = tempfile.mkstemp()
         f = os.fdopen(fd, 'w')
@@ -105,8 +103,8 @@ class PGPSigner(Wrapper):
                 raise VerifyError('invalid signature for message {}'.format(message_id))
         else:
             logg.debug('signature ok from {}'.format(r.fingerprint))
-            envelope.valid = True
-        #envelope.sender = r.fingerprint
-        self.__envelope_state = 2
+            self.envelope.valid = True
+        self.envelope.sender = r.fingerprint
+        self.envelope_state = 2
 
-        return (envelope, msg,)
+        return (self.envelope, msg,)
