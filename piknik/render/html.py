@@ -154,8 +154,12 @@ class Renderer(BaseRenderer):
                     message_content['type'][1],
                     message.get_payload(),
                     )
-            v = os.path.basename(message_content['filename'])
-            r = a(v, href=s)
+            r = None
+            if message_content['type'][0] == 'image':
+                r = img(src=s)
+            else:
+                v = os.path.basename(message_content['filename'])
+                r = a(v, href=s)
             
             s = 'd_m_{}_{}'.format(
                     message_content['id'],

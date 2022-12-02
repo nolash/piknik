@@ -30,18 +30,13 @@ logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
 
 
-#def test_wrapper(p):
-#    m = Message()
-#    m.add_header('Foo', 'bar')
-#    m.set_type('multipart/relative')
-#    m.set_payload(p)
-#    return m
-#
-#
-#def test_unwrapper(msg, message_callback=None, part_callback=None):
-#    for v in msg.walk():
-#        if message_callback != None:
-#            message_callback(v)
+def test_wrapper(p):
+    m = Message()
+    m.add_header('Foo', 'bar')
+    m.add_header('X-Piknik-Envelope', 'foo')
+    m.set_type('multipart/relative')
+    m.set_payload(p)
+    return m
 
 
 class TestMsg(unittest.TestCase):
@@ -100,18 +95,19 @@ class TestMsg(unittest.TestCase):
 
 
     def test_issue_attachment(self):
+        b = Basket(self.store, message_wrapper=test_wrapper)
         issue = Issue('foo')
-        issue_id = self.b.add(issue)
+        issue_id = b.add(issue)
 
-        m = self.b.msg(issue_id, 'f:tests/one.png')
+        m = b.msg(issue_id, 'f:tests/three.webp')
 
-        state = self.b.get_state(issue_id)
+        state = b.get_state(issue_id)
         tags = []
 
         w = io.StringIO()
         acc = Accumulator(w=w)
         wrapper = Wrapper()
-        renderer = Renderer(self.b, outdir=self.render_dir, wrapper=wrapper, accumulator=acc.add)
+        renderer = Renderer(b, outdir=self.render_dir, wrapper=wrapper, accumulator=acc.add)
         renderer.apply_begin()
         renderer.apply_issue(state, issue, tags)
         renderer.apply_end()
