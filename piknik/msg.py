@@ -4,12 +4,11 @@ import uuid
 import mimetypes
 from base64 import b64encode
 import time
-
-#from email.message import EmailMessage as Message
 from email.message import Message
 from email import message_from_string
 from email.policy import Compat32
 from email.utils import formatdate
+from email.utils import parsedate_to_datetime
 
 
 logg = logging.getLogger(__name__)
@@ -45,6 +44,7 @@ class IssueMessage:
     def __unwrap(self, msg, envelope_callback=rubber_stamp_envelope, message_callback=None, post_callback=None):
         message_ids = []
         message_id = None
+        message_date = None
         envelope = None
         initial = False
 
@@ -66,8 +66,10 @@ class IssueMessage:
             if new_message_id != None:
                 message_id = new_message_id
                 message_ids.append(message_id)
+                d = m.get('Date')
+                message_date = parsedate_to_datetime(d)
             else:
-                message_callback(envelope, m, message_id)
+                message_callback(envelope, m, message_id, message_date)
 
         if post_callback != None:
             post_callback(message_ids)

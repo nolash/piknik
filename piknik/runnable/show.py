@@ -50,7 +50,8 @@ def to_suffixed_file(d, s, data):
 # TODO can implement as email parser api instead?
 class PGPWrapper(PGPSigner):
 
-    def __init__(self, renderer, state, issue, home_dir=None):
+    #def __init__(self, renderer, state, issue, home_dir=None):
+    def __init__(self, state, issue, home_dir=None):
         #super(PGPWrapper, self).__init__(home_dir=home_dir)
         super(PGPWrapper, self).__init__(home_dir=home_dir, skip_verify=True)
         self.message_date = None
@@ -59,18 +60,18 @@ class PGPWrapper(PGPSigner):
         self.message_id = None
         self.sender = None
         self.valid = False
-        self.renderer = renderer
+        #self.renderer = renderer
         self.state = state
         self.issue = issue
 
 
-    def render_message(self, envelope, messages, message_sender, message_date, message_id, dump_dir=None, w=sys.stdout):
-        for message in messages:
-            self.renderer.apply_message_part(self.state, self.issue, envelope, message, message_sender, message_date, message_id, self.valid, dump_dir=dump_dir, w=w)
-        #valid = '[++]'
-        #if not self.valid:
-        #    valid = '[!!]'
-        self.renderer.apply_message_post(self.state, self.issue, envelope, message, self.sender, message_date, message_id, self.valid, w=w)
+#    def render_message(self, envelope, messages, message_sender, message_date, message_id, dump_dir=None, w=sys.stdout):
+#        for message in messages:
+#            self.renderer.apply_message_part(self.state, self.issue, envelope, message, message_sender, message_date, message_id, self.valid, dump_dir=dump_dir, w=w)
+#        #valid = '[++]'
+#        #if not self.valid:
+#        #    valid = '[!!]'
+#        self.renderer.apply_message_post(self.state, self.issue, envelope, message, self.sender, message_date, message_id, self.valid, w=w)
 
 
     def envelope_callback(self, envelope, envelope_type):
@@ -79,8 +80,8 @@ class PGPWrapper(PGPSigner):
         return envelope
 
 
-    def message_callback(self, envelope, message, message_id):
-        (envelope, message) = super(PGPWrapper, self).message_callback(envelope, message, message_id)
+    def message_callback(self, envelope, message, message_id, message_date):
+        (envelope, message) = super(PGPWrapper, self).message_callback(envelope, message, message_id, message_date)
 
         if envelope != None and not envelope.resolved:
             logg.debug('have sender {}'.format(self.sender))
@@ -89,7 +90,7 @@ class PGPWrapper(PGPSigner):
             self.resolved = True
 
         if message_id == None:
-            return
+            return (envelope, message,)
 
         messages = []
         if message.get('X-Piknik-Msg-Id') == None:
@@ -106,6 +107,8 @@ class PGPWrapper(PGPSigner):
             d = message.get('Date')
             self.message_date = parsedate_to_datetime(d)
             self.message_id = message_id
+
+        return (envelope, message,)
 
 
     def post_callback(self, messages_id):
@@ -194,19 +197,20 @@ def main():
         #import piknik.render.html
         #renderer = piknik.render.html.Renderer()
         import piknik.render.ini
-        renderer = piknik.render.ini.Renderer()
-        return process_states(renderer, basket)
-
-    import piknik.render.html
-    renderer = piknik.render.html.Renderer()
-    #import piknik.render.ini
-    #renderer = piknik.render.ini.Renderer()
+        renderer = piknik.render.ini.Renderer(basket)
+        #return process_states(renderer, basket)
+        renderer.apply()
+        return
 
     issue = basket.get(arg.issue_id)
     tags = basket.tags(arg.issue_id)
+    state = basket.get_state(arg.issue_id)
+    verifier = PGPWrapper(state, issue, home_dir=gpg_home)
 
-    #globals()['render_' + arg.renderer](basket, state, issue, tags)
-    render(renderer, basket, issue, tags)
+    import piknik.render.plain
+    renderer = piknik.render.plain.Renderer(basket, envelope_callback=verifier.envelope_callback, message_callback=verifier.message_callback)
+
+    renderer.apply_issue(state, issue, tags)
     
 
 if __name__ == '__main__':

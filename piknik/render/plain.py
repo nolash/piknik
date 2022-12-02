@@ -1,22 +1,25 @@
 # standard imports
-import sys
+import logging
 
 # external imports
 from mimeparse import parse_mime_type
 
 # local imports
 from .base import Renderer as BaseRenderer
+from .base import stream_accumulator
+
+logg = logging.getLogger(__name__)
 
 
 class Renderer(BaseRenderer):
 
-    def __init__(self):
-        super(Renderer, self).__init__()
-        self.msg_buf = ''
+    def __init__(self, basket, dump_dir=None, accumulator=stream_accumulator, **kwargs):
+        super(Renderer, self).__init__(basket, accumulator=accumulator, **kwargs)
+        self.dump_dir = dump_dir
 
 
-    def apply_issue(self, state, issue, tags, w=sys.stdout):
-        w.write("""title: {}
+    def apply_issue(self, state, issue, tags, accumulator=None):
+        s = """title: {}
 tags: {}
 id: {}
 
@@ -25,40 +28,38 @@ id: {}
         issue.title,
         ', '.join(tags),
             )
-          )
+        self.add(s, accumulator=accumulator)
 
         assigned = issue.get_assigned()
 
         if len(assigned) == 0:
-            w.write('(not assigned)\n')
-            return
+            self.add('(not assigned)\n', accumulator=accumulator)
 
-        w.write('assigned to:\n')
-        owner = issue.owner()
-        for v in assigned:
-            o = v[0]
-            s = o.id()
-            if o == owner:
-                s += ' (owner)'
-            w.write('\t' + str(s))
+        else:
+            self.add('assigned to:\n', accumulator=accumulator)
+            owner = issue.owner()
+            for v in assigned:
+                o = v[0]
+                s = o.id()
+                if o == owner:
+                    s += ' (owner)'
+                s = '\t' + str(s) + '\n'
+                self.add(s, accumulator=accumulator)
 
-
-    def apply_message_post(self, state, issue, tags, message, message_from, message_date, message_id, message_valid, w=sys.stdout):
-        r = self.msg_buf
-        self.msg_buf = ''
-        w.write('\nmessage {} from {} {} - {}\n\t{}\n'.format(message_date, message_from, message_valid, message_id, r))
-        #return r
+        super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)
 
 
-    #def apply_message(self, state, issue, tags, message, dump_dir=None, w=sys.stdout):
-    #    return
+    def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
+        s = '\nmessage {} from {} {} - {}\n\n'.format(
+                message_date,
+                envelope.sender,
+                envelope.valid,
+                message_id,
+                )
+        self.add(s, accumulator=accumulator)
 
 
-            #ww.seek(0)
-            #self.msg_buf += '\n\t' + ww.read() + '\n'
-
-
-    def apply_message_part(self, state, issue, envelope, message, message_from, message_date, message_id, message_valid, dump_dir=None, w=sys.stdout):
+    def apply_message_part(self, state, issue, envelope, message, message_id, message_date, accumulator=None):
         m = parse_mime_type(message.get_content_type())
         filename = message.get_filename()
 
@@ -72,14 +73,15 @@ id: {}
                 else:
                     v = '[rich text]'
         else:
-            if dump_dir != None:
+            if self.dump_dir != None:
                 v = message.get_payload()
                 if message.get('Content-Transfer-Encoding') == 'BASE64':
                     v = b64decode(v).decode()
-                filename = to_suffixed_file(dump_dir, filename, v)
+                filename = to_suffixed_file(self.dump_dir, filename, v)
             sz = message.get('Content-Length')
             if sz == None:
                 sz = 'unknown'
             v = '[file: {}, type {}/{}, size: {}]'.format(filename, m[0], m[1], sz)
 
-        w.write('\n\t' + v + '\n')
+        s = '\n\t' + v + '\n'
+        self.add(s, accumulator=accumulator)

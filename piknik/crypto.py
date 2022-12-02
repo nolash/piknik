@@ -10,14 +10,16 @@ import gnupg
 # local imports
 from piknik.error import VerifyError
 from piknik.msg import MessageEnvelope
+from piknik.wrap import Wrapper
 
-logg = logging.getLogger()
+logg = logging.getLogger(__name__)
 logging.getLogger('gnupg').setLevel(logging.ERROR)
 
 
-class PGPSigner:
+class PGPSigner(Wrapper):
 
     def __init__(self, home_dir=None, default_key=None, passphrase=None, use_agent=False, skip_verify=False):
+        super(PGPSigner, self).__init__()
         self.gpg = gnupg.GPG(gnupghome=home_dir)
         self.default_key = default_key
         self.passphrase = passphrase
@@ -69,16 +71,18 @@ class PGPSigner:
         return MessageEnvelope(msg)
 
 
-    def message_callback(self, envelope, msg, message_id):
+    def message_callback(self, envelope, msg, message_id, message_date):
         if msg.get('From') != None:
             envelope.sender = msg.get('From')
 
         if self.__envelope_state == 0:
+            self.add(message_id, msg)
             self.__envelope_state = 1
             self.__envelope = msg
             return (envelope, msg,)
 
         if msg.get('Content-Type') != 'application/pgp-signature':
+            self.add(message_id, msg)
             return (envelope, msg,)
 
         v = self.__envelope.as_string()
