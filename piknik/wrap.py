@@ -17,12 +17,13 @@ class Wrapper:
         self.envelope_state = -1 # -1 not in envelope, 0 in outer envelope, 1 inner envelope, not (yet) valid, 2 envelope valid (with signature)
         self.envelope = None
         self.dump_dir = dump_dir
-
+        self.msg_idx = 0
 
 
     def process_envelope(self, msg, env_header):
         self.envelope = MessageEnvelope(msg)
         self.envelope_state = 0
+        self.msg_idx = 0
         return self.envelope
 
 
@@ -30,7 +31,6 @@ class Wrapper:
         if msg.get('X-Piknik-Msg-Id') == None:
             self.add(self.envelope, message_id, msg)
         return (self.envelope, msg,)
-        #raise NotImplementedError()
 
 
     def add(self, envelope, message_id, message):
@@ -64,7 +64,9 @@ class Wrapper:
                 'filename': filename,
                 'size': sz,
                 'contents': v,
+                'idx': self.msg_idx,
                 }
+        self.msg_idx += 1
 
         logg.info('buffered content {}'.format(o))
         self.content_buffer.append(o)

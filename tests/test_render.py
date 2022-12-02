@@ -64,8 +64,6 @@ class TestRenderer(Renderer):
         return r
 
 
-
-
 class TestRendererComposite(TestRenderer):
 
     def __init__(self, basket, accumulator=None):
@@ -123,6 +121,20 @@ class TestMsg(unittest.TestCase):
         v = self.b.add(issue_two)
 
         m = self.b.msg(v, 's:foo')
+
+        renderer.apply()
+        self.assertEqual(len(renderer.m), 1)
+
+
+    def test_attachment(self):
+        renderer = TestRendererComposite(self.b, accumulator=self.accumulate)
+        issue_one = Issue('foo')
+        self.b.add(issue_one)
+
+        issue_two = Issue('bar')
+        v = self.b.add(issue_two)
+
+        m = self.b.msg(v, 'f:tests/one.png')
 
         renderer.apply()
         self.assertEqual(len(renderer.m), 1)

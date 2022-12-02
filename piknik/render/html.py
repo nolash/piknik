@@ -51,6 +51,8 @@ class Accumulator:
                 self.msg = ol(_id='message_list')
             elif v_id[:2] == 'm_':
                 self.msg.add(li(v))
+            elif v_id[:4] == 'd_m_':
+                self.msg.add(v)
         else:
             self.doc = v
 
@@ -125,9 +127,7 @@ class Renderer(BaseRenderer):
 
     
     def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
-        import uuid
-        rnd = str(uuid.uuid4())
-        r = div(_id='m_' + message_id + '_' + rnd)
+        r = div(_id='m_' + message_id)
 
         s = dd()
         s.add(dt('Date'))
@@ -145,11 +145,26 @@ class Renderer(BaseRenderer):
         s.add(dd(v))
         r.add(s)
 
-        s = div(message.get_payload())
-        r.add(s)
+        self.add(r)
         
-        return r
+        #return r
 
+
+    def apply_message_part(self, state, issue, tags, envelope, message, message_date, message_content, accumulator=None):
+        if message_content['filename'] != None:
+            s = 'data:{}/{};base64,{}'.format(
+                    message_content['type'][0],
+                    message_content['type'][1],
+                    message.get_payload(),
+                    )
+            v = os.path.basename(message_content['filename'])
+            r = a(v, href=s)
+            
+            s = 'd_m_{}_{}'.format(
+                    message_content['id'],
+                    message_content['idx'],
+                    )
+            return div(r, _id=s)
 
 #    def apply_state_post(self, state, w=sys.stdout):
 #        r = div(_id='state_' + state)
