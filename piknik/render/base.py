@@ -18,6 +18,9 @@ class Renderer:
         self.b = basket
         self.a = accumulator
         self.w = wrapper
+        if self.w == None:
+            logg.info('no wrapper defined. no message parts will be output')
+        self.render_mode = 0
 
 
     def add(self, v, accumulator=None):
@@ -86,7 +89,6 @@ class Renderer:
         def message_callback(message, message_id, message_date):
             envelope = None
             if self.w == None:
-                logg.warning('no wrapper defined. no message parts will be output')
                 return (envelope, message,)
 
             (envelope, message) = self.w.process_message(message, message_id, message_date)
@@ -114,7 +116,7 @@ class Renderer:
 
 
     def apply_state_pre(self, state, accumulator=None):
-        pass
+        self.render_mode = 1
 
 
     def apply_state_post(self, state, accumulator=None):

@@ -34,6 +34,19 @@ class Renderer(BaseRenderer):
 
 
     def apply_issue(self, state, issue, tags, accumulator=None):
+        if self.render_mode == 0:
+            return self.apply_issue_standalone(state, issue, tags, accumulator=accumulator)
+
+        s = '{}\t{}\t{}\n'.format(
+                issue.title,
+                ','.join(tags),
+                issue.id,
+                )
+        self.add(s, accumulator=accumulator)
+        super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)
+
+
+    def apply_issue_standalone(self, state, issue, tags, accumulator=None):
         s = """title: {}
 tags: {}
 id: {}
@@ -92,3 +105,13 @@ id: {}
 
         s = '\n\t' + v + '\n'
         return s
+
+
+    def apply_state(self, state, accumulator=None):
+        s = '[' + state + ']\n'
+        self.add(s, accumulator=accumulator) 
+        super(Renderer, self).apply_state(state, accumulator=accumulator)
+
+
+    def apply_state_post(self, state, accumulator=None):
+        self.add('\n', accumulator=accumulator)

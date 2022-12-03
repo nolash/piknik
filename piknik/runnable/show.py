@@ -7,6 +7,7 @@ import logging
 import tempfile
 from base64 import b64decode
 from email.utils import parsedate_to_datetime
+import importlib
 
 # local imports
 from piknik import Basket
@@ -15,7 +16,7 @@ from piknik.store import FileStoreFactory
 from piknik.crypto import PGPSigner
 from piknik.render.plain import Renderer
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
@@ -32,172 +33,39 @@ arg = argp.parse_args(sys.argv[1:])
 store_factory = FileStoreFactory(arg.d)
 basket = Basket(store_factory)
 
-
-def to_suffixed_file(d, s, data):
-    (v, ext) = os.path.splitext(s)
-    r = tempfile.mkstemp(suffix=ext, dir=d)
-
-    f = os.fdopen(r[0], 'wb')
-    try:
-        f.write(data)
-    except TypeError:
-        f.write(data.encode('utf-8'))
-    f.close()
-
-    return r[1]
-
-
-class PGPWrapper(PGPSigner):
-
-    def __init__(self, state, issue, home_dir=None):
-        super(PGPWrapper, self).__init__(home_dir=home_dir, skip_verify=True)
-        self.message_date = None
-        self.messages = []
-        self.part = []
-        self.message_id = None
-        self.sender = None
-        self.valid = False
-        self.state = state
-        self.issue = issue
-
-
-    def envelope_callback(self, envelope, envelope_type):
-        envelope = super(PGPWrapper, self).envelope_callback(envelope, envelope_type)
-        envelope.valid = False
-        return envelope
-
-
-    def message_callback(self, envelope, message, message_id, message_date):
-        (envelope, message) = super(PGPWrapper, self).message_callback(envelope, message, message_id, message_date)
-
-        if envelope != None and not envelope.resolved:
-            logg.debug('have sender {}'.format(self.sender))
-            self.sender = envelope.sender
-            self.valid = envelope.valid
-            self.resolved = True
-
-        if message_id == None:
-            return (envelope, message,)
-
-        messages = []
-        if message.get('X-Piknik-Msg-Id') == None:
-            if message.get('Content-Type') == 'application/pgp-signature':
-                
-                #self.render_message(envelope, self.message, self.message_id, dump_dir=dump_dir)
-                self.messages.append((envelope, self.part, self.sender, self.message_date, self.message_id,))
-                self.part = []
-                self.message_id = None
-                self.message_date = None
-            else:
-                self.part.append(message)
-        else:
-            d = message.get('Date')
-            self.message_date = parsedate_to_datetime(d)
-            self.message_id = message_id
-
-        return (envelope, message,)
-
-
-    def post_callback(self, messages_id):
-        dump_dir = None
-        if arg.f:
-            dump_dir = arg.files_dir
-        rg = None
-        if arg.reverse:
-            rg = range(0, len(self.messages))
-        else:
-            rg = range(len(self.messages)-1, -1, -1)
-        for i in rg:
-            v = self.messages[i]
-            self.render_message(v[0], v[1], v[2], v[3], v[4], dump_dir=dump_dir)
-
-
 gpg_home = os.environ.get('GPGHOME')
 
 
-def render(renderer, basket, issue, tags):
-    renderer.apply_begin()
-    render_issue(renderer, basket, issue, tags)
-    renderer.apply_state_post(state)
-    renderer.apply_end()
-
-
-def render_issue(renderer, basket, issue, tags):
-    state = basket.get_state(issue.id)
-    renderer.apply_issue(state, issue, tags)
-    verifier = PGPWrapper(renderer, state, issue, home_dir=gpg_home)
-    m = basket.get_msg(
-            issue.id,
-            envelope_callback=verifier.envelope_callback,
-            message_callback=verifier.message_callback,
-            post_callback=verifier.post_callback,
-        )
-    renderer.apply_issue_post(state, issue, tags)
-
-
-def render_states(renderer, basket, states):
-    renderer.apply_begin()
-
-    for k in basket.states():
-        logg.debug('processing state {}'.format(k))
-        if k == 'FINISHED' and not arg.show_finished:
-            continue
-
-        renderer.apply_state(k)
-
-        for issue_id in states[k]:
-            if k != 'BLOCKED' and issue_id in states['BLOCKED']:
-                continue
-            issue = basket.get(issue_id)
-            tags = basket.tags(issue_id)
-            #renderer.apply_issue(k, issue, tags)
-            #renderer.apply_issue_post(k, issue, tags)
-            render_issue(renderer, basket, issue, tags)
-
-        renderer.apply_state_post(k)
-
-    renderer.apply_end()
-
-
-
-def process_states(renderer, basket):
-    results = {}
-    states = []
-    for s in arg.state:
-        states.append(s.upper())
-
-    l = len(states)
-    for s in basket.states():
-        
-        if results.get(s) == None:
-            results[s] = []
-
-        if l == 0 or s in states:
-            for v in basket.list(category=s):
-               results[s].append(v)
-
-    render_states(renderer, basket, results)
-
-
 def main():
+
+    renderer = arg.renderer
+    if renderer == 'default':
+        renderer = 'piknik.render.plain'
+    elif renderer == 'html':
+        renderer = 'piknik.render.html'
+
+    m = None
+    try:
+        m = importlib.import_module(renderer)
+    except ModuleNotFoundError:
+        renderer = 'piknik.render.' + renderer
+        m = importlib.import_module(renderer)
+
+
     if arg.issue_id == None:
-        #import piknik.render.html
-        #renderer = piknik.render.html.Renderer()
-        import piknik.render.ini
-        renderer = piknik.render.ini.Renderer(basket)
-        #return process_states(renderer, basket)
+        renderer = m.Renderer(basket)
         renderer.apply()
         return
 
     issue = basket.get(arg.issue_id)
     tags = basket.tags(arg.issue_id)
     state = basket.get_state(arg.issue_id)
-    verifier = PGPWrapper(state, issue, home_dir=gpg_home)
+    verifier = PGPSigner(home_dir=gpg_home, skip_verify=False)
+    renderer = m.Renderer(basket, wrapper=verifier)
 
-    import piknik.render.plain
-    renderer = piknik.render.plain.Renderer(basket, wrapper=verifier) #envelope_callback=verifier.envelope_callback, message_callback=verifier.message_callback)
-
+    renderer.apply_begin()
     renderer.apply_issue(state, issue, tags)
+    renderer.apply_end()
     
 
 if __name__ == '__main__':

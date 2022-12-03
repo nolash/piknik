@@ -49,7 +49,6 @@ class TestMsg(unittest.TestCase):
 
 
     def tearDown(self):
-        #logg.debug('look in {}'.format(self.render_dir))
         shutil.rmtree(self.render_dir)
 
 

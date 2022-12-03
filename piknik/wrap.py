@@ -1,5 +1,6 @@
 # standard imports
 import logging
+from base64 import b64decode
 
 # external imports
 from mimeparse import parse_mime_type
@@ -45,11 +46,25 @@ class Wrapper:
                     if message.get('Content-Transfer-Encoding') == 'BASE64':
                         v = b64decode(v).decode()
         else:
-            if self.dump_dir != None:
-                v = message.get_payload()
-                if message.get('Content-Transfer-Encoding') == 'BASE64':
+            v = message.get_payload()
+            if message.get('Content-Transfer-Encoding') == 'BASE64':
+                try:
                     v = b64decode(v).decode()
-                filename = to_suffixed_file(self.dump_dir, filename, v)
+                except UnicodeDecodeError:
+                    pass
+
+            if self.dump_dir != None:
+                (void, ext) = os.path.splitext(filename)
+                (fp, fn) = tempfile.mkstemp(suffix=ext, dir=self.dump_dir)
+
+                f = os.fdopen(fp, 'wb')
+                try:
+                    f.write(v)
+                except TypeError:
+                    f.write(v.encode('utf-8'))
+                f.close()
+
+                filename = fn
 
         sz = message.get('Content-Length')
         if sz == None:
@@ -68,7 +83,6 @@ class Wrapper:
                 }
         self.msg_idx += 1
 
-        logg.info('buffered content {}'.format(o))
         self.content_buffer.append(o)
 
 

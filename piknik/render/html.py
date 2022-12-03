@@ -22,7 +22,6 @@ class Accumulator:
         self.issue = None
         self.msg = None
         self.w = w
-        #self.message = None
 
 
     def add(self, v, w=None):
@@ -59,14 +58,11 @@ class Accumulator:
 
 class Renderer(BaseRenderer):
 
-    def __init__(self, basket, accumulator=None, wrapper=None, outdir='/tmp'):
+    def __init__(self, basket, accumulator=None, wrapper=None, outdir=None):
         if accumulator == None:
             accumulator = Accumulator().add
         super(Renderer, self).__init__(basket, accumulator=accumulator, wrapper=wrapper)
         self.outdir = outdir
-        self.last_message_id = None
-        self.render_mode = 0
-        self.msg_idx = 0
 
 
     def apply_state(self, state, accumulator=None):
@@ -143,16 +139,15 @@ class Renderer(BaseRenderer):
         r.add(s)
 
         self.add(r)
-        
-        #return r
-
+       
 
     def apply_message_part(self, state, issue, tags, envelope, message, message_date, message_content, accumulator=None):
+        r = None
         if message_content['filename'] != None:
             s = 'data:{}/{};base64,{}'.format(
                     message_content['type'][0],
                     message_content['type'][1],
-                    message.get_payload(),
+                    message_content['contents'],
                     )
             r = None
             if message_content['type'][0] == 'image':
@@ -161,11 +156,15 @@ class Renderer(BaseRenderer):
                 v = os.path.basename(message_content['filename'])
                 r = a(v, href=s)
             
-            s = 'd_m_{}_{}'.format(
+        else:
+            r = message_content['contents']
+
+        m_id = 'd_m_{}_{}'.format(
                     message_content['id'],
                     message_content['idx'],
                     )
-            return div(r, _id=s)
+
+        return div(r, _id=m_id)
 
 
     def apply_begin(self, accumulator=None):
