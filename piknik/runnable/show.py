@@ -15,7 +15,7 @@ from piknik import Issue
 from piknik.store import FileStoreFactory
 from piknik.crypto import PGPSigner
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()

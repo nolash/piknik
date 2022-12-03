@@ -1,3 +1,5 @@
+- 0.5.0
+	* Verify and enforce cryptographic key of identity for assignments
 - 0.4.0
 	* HTTP server for making state edits for issues locally (e.g. drag).
 - 0.3.0

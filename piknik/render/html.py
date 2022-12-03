@@ -91,6 +91,9 @@ class Renderer(BaseRenderer):
         s.add(dt('issue id'))
         s.add(dd(issue.id))
 
+        s.add(dt('state'))
+        s.add(dd(state))
+
         s.add(dt('tags'))
         r_r = ul()
         for v in tags:
