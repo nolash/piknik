@@ -95,18 +95,21 @@ class Renderer(BaseRenderer):
         s.add(dd(state))
 
         s.add(dt('tags'))
+        r_d = dd()
         r_r = ul()
-        for v in tags:
+        for i, v in enumerate(tags):
             if v == '(UNTAGGED)':
+                r_d.add(dd(v))
                 continue
-            r_r.add(li(v))
-
-        assigned = issue.get_assigned()
-        s.add(dd(r_r))
+            else:
+                r_r.add(li(v))
+        r_d.add(r_r)
+        s.add(r_d)
     
+        assigned = issue.get_assigned()
         s.add(dt('assigned to'))
         if len(assigned) == 0:
-            s.add(dd('not assigned'))
+            s.add(dd('(not assigned)'))
         else:
             owner = issue.owner()
             r_r = ul()
