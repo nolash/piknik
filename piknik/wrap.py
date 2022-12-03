@@ -88,6 +88,6 @@ class Wrapper:
 
     def pop(self):
         try:
-            return self.content_buffer.pop()
+            return self.content_buffer.pop(0)
         except IndexError:
             return None

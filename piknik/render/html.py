@@ -21,6 +21,7 @@ class Accumulator:
         self.category = ul(_id='state_list')
         self.issue = None
         self.msg = None
+        self.envelope = None
         self.w = w
         self.issues = []
 
@@ -29,6 +30,8 @@ class Accumulator:
         if w == None:
             w = self.w
         if len(v) == 0:
+            if self.envelope != None:
+                self.msg.add(self.envelope)
             self.doc.add(self.category)
             if self.msg != None:
                 self.doc.add(self.msg)
@@ -52,9 +55,11 @@ class Accumulator:
                 self.msg = ol(_id='message_list')
                 self.issues.append(v_id[2:])
             elif v_id[:2] == 'm_':
-                self.msg.add(li(v))
+                if self.envelope != None:
+                    self.msg.add(self.envelope)
+                self.envelope = li(v)
             elif v_id[:4] == 'd_m_':
-                self.msg.add(v)
+                self.envelope.add(v)
         else:
             self.doc = v
 
@@ -95,16 +100,13 @@ class Renderer(BaseRenderer):
         s.add(dd(state))
 
         s.add(dt('tags'))
-        r_d = dd()
-        r_r = ul()
-        for i, v in enumerate(tags):
-            if v == '(UNTAGGED)':
-                r_d.add(dd(v))
-                continue
-            else:
-                r_r.add(li(v))
-        r_d.add(r_r)
-        s.add(r_d)
+        if len(tags) == 1 and tags[0] == '(UNTAGGED)':
+                s.add(dd(tags[0]))
+        else:
+            r_d = ul()
+            for v in tags:
+                r_d.add(li(v))
+            s.add(dd(r_d))
     
         assigned = issue.get_assigned()
         s.add(dt('assigned to'))
