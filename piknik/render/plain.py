@@ -2,6 +2,7 @@
 import logging
 import tempfile
 import os
+import sys
 
 # external imports
 from mimeparse import parse_mime_type
@@ -26,9 +27,21 @@ def to_suffixed_file(d, s, data):
     return r[1]
 
 
+class Accumulator:
+
+    def __init__(self, w=sys.stdout):
+        self.w = w
+
+
+    def add(self, v):
+        stream_accumulator(v, w=self.w)
+
+
 class Renderer(BaseRenderer):
 
-    def __init__(self, basket, dump_dir=None, accumulator=stream_accumulator, **kwargs):
+    def __init__(self, basket, dump_dir=None, accumulator=None, **kwargs):
+        if accumulator == None:
+            accumulator = Accumulator().add
         super(Renderer, self).__init__(basket, accumulator=accumulator, **kwargs)
         self.dump_dir = dump_dir
 

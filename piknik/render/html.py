@@ -22,6 +22,7 @@ class Accumulator:
         self.issue = None
         self.msg = None
         self.w = w
+        self.issues = []
 
 
     def add(self, v, w=None):
@@ -45,9 +46,11 @@ class Accumulator:
             elif v_id[:2] == 'i_':
                 logg.debug('issue now')
                 self.issue.add(v)
+                self.issues.append(v_id[2:])
             elif v_id[:4] == 'd_i_':
                 self.category = v
                 self.msg = ol(_id='message_list')
+                self.issues.append(v_id[2:])
             elif v_id[:2] == 'm_':
                 self.msg.add(li(v))
             elif v_id[:4] == 'd_m_':
@@ -106,10 +109,10 @@ class Renderer(BaseRenderer):
             r_r = ul()
             for v in assigned:
                 o = v[0]
-                s = o.id()
+                ss = o.id()
                 if o == owner:
-                    s += ' (owner)'
-                r_r.add(li(s))
+                    ss += ' (owner)'
+                r_r.add(li(ss))
             s.add(dd(r_r))
 
         r.add(s)
