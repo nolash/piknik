@@ -22,6 +22,7 @@ class Accumulator:
         self.category_content = None
         self.issue = None
         self.msg = None
+        self.envelope_content = None
         self.envelope = None
         self.w = w
         self.issues = []
@@ -59,7 +60,8 @@ class Accumulator:
             elif v_id[:2] == 'm_':
                 if self.envelope != None:
                     self.msg.add(self.envelope)
-                self.envelope = li(v)
+                self.envelope_content = v
+                self.envelope = li()
             elif v_id[:4] == 'd_m_':
                 self.envelope.add(v)
         else:
