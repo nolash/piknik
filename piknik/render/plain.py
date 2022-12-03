@@ -61,37 +61,40 @@ class Renderer(BaseRenderer):
 
     def apply_issue_standalone(self, state, issue, tags, accumulator=None):
         s = """title: {}
-tags: {}
 id: {}
-
+state: {}
+tags: {}
 """.format(
-        issue.id,
         issue.title,
+        issue.id,
+        state,
         ', '.join(tags),
             )
         self.add(s, accumulator=accumulator)
 
         assigned = issue.get_assigned()
 
+        assigns = [] 
+        s = 'assigned to: '
         if len(assigned) == 0:
-            self.add('(not assigned)\n', accumulator=accumulator)
-
+            assigns.append('(not assigned)')
         else:
-            self.add('assigned to:\n', accumulator=accumulator)
             owner = issue.owner()
             for v in assigned:
                 o = v[0]
-                s = o.id()
+                ss = o.id()
                 if o == owner:
-                    s += ' (owner)'
-                s = '\t' + str(s) + '\n'
-                self.add(s, accumulator=accumulator)
+                    ss += ' (owner)'
+                #s = '\t' + str(s) + '\n'
+                assigns.append(ss)
+        s += ', '.join(assigns) + '\n'
+        self.add(s, accumulator=accumulator)
 
         super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)
 
 
     def apply_message(self, state, issue, tags, envelope, message, message_id, message_date, accumulator=None):
-        s = '\nmessage {} from {} {} - {}\n\n'.format(
+        s = '\nmessage {} from {} {} - {}\n'.format(
             message_date,
             envelope.sender,
             envelope.valid,

@@ -1,6 +1,7 @@
 - 0.2.1
 	* Render browsable HTML version of board, issues and issue logs
 	* Add sender identity in email on signature
+	* Auto-assign issue creator as owner
 - 0.2.0
 	* GPG signing of issue messages.
 	* Use visitor pattern for messages verifier

@@ -80,7 +80,6 @@ def reset_accumulator():
 
 
 def main():
-
     issues = []
     if arg.issue_id:
         issues.append(arg.issue_id)
