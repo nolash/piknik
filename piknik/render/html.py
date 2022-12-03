@@ -19,6 +19,7 @@ class Accumulator:
     def __init__(self, w=sys.stdout):
         self.doc = None
         self.category = ul(_id='state_list')
+        self.category_content = None
         self.issue = None
         self.msg = None
         self.envelope = None
@@ -43,8 +44,9 @@ class Accumulator:
         if len(v_id) > 1:
             if v_id[:2] == 's_':
                 if self.issue != None:
-                    self.category.add(self.issue)
-                self.category.add(v)
+                    self.category_content.add(self.issue)
+                    self.category.add(li(self.category_content))
+                self.category_content = v
                 self.issue = ul(_id='issue_list_' + v_id[2:])
             elif v_id[:2] == 'i_':
                 logg.debug('issue now')
