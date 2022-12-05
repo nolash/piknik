@@ -10,6 +10,13 @@ while True:
         break
     requirements.append(l.rstrip())
 f.close()
+f = open('html_requirements.txt', 'r')
+while True:
+    l = f.readline()
+    if l == '':
+        break
+    requirements.append(l.rstrip())
+f.close()
 
 test_requirements = []
 f = open('test_requirements.txt', 'r')
