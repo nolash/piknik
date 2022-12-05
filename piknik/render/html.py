@@ -22,7 +22,7 @@ class Accumulator:
         self.category_content = None
         self.issue = None
         self.msg = None
-        self.envelope_content = None
+        #self.envelope_content = None
         self.envelope = None
         self.w = w
         self.issues = []
@@ -34,9 +34,10 @@ class Accumulator:
         if len(v) == 0:
             if self.envelope != None:
                 self.msg.add(self.envelope)
-            self.doc.add(self.category)
             if self.msg != None:
-                self.doc.add(self.msg)
+                self.category.add(self.msg)
+                #self.doc.add(self.msg)
+            self.doc.add(self.category)
             w.write(self.doc.render())
             return
 
@@ -55,12 +56,13 @@ class Accumulator:
                 self.issues.append(v_id[2:])
             elif v_id[:4] == 'd_i_':
                 self.category = v
+                self.issue = v
                 self.msg = ol(_id='message_list')
                 self.issues.append(v_id[2:])
             elif v_id[:2] == 'm_':
                 if self.envelope != None:
                     self.msg.add(self.envelope)
-                self.envelope_content = v
+                #self.envelope_content = v
                 self.envelope = li()
             elif v_id[:4] == 'd_m_':
                 self.envelope.add(v)
