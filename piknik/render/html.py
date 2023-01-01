@@ -131,6 +131,18 @@ class Renderer(BaseRenderer):
 
         r.add(s)
 
+        deps = issue.get_dependencies()
+        s.add(dt('depends on'))
+        if len(deps) == 0:
+            s.add(dd('no dependencies'))
+        else:
+            r_r = ul()
+            for v in deps:
+                r_r.add(dd(v))
+            s.add(dd(r_r))
+    
+        r.add(s)
+
         self.add(r)
 
         super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)

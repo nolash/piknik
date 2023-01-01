@@ -65,6 +65,10 @@ class Issue:
         return list(zip(self.assigned, self.assigned_time))
 
 
+    def get_dependencies(self):
+        return self.dependencies
+
+
     def unassign(self, identity):
         for i, v in enumerate(self.assigned):
             if v == identity:
