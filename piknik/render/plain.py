@@ -88,6 +88,10 @@ tags: {}
                 #s = '\t' + str(s) + '\n'
                 assigns.append(ss)
         s += ', '.join(assigns) + '\n'
+
+        if len(issue.dependencies) > 0:
+            s += 'depends on: '
+            s += ', '.join(issue.dependencies) + '\n'
         self.add(s, accumulator=accumulator)
 
         super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)

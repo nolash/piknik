@@ -47,7 +47,7 @@ class FileStoreFactory:
 
     def __init__(self, directory=None):
         if directory == None:
-            directory = os.path.join(os.environ['HOME'], '.piknik')
+            directory = os.path.join('.', '.piknik')
         self.directory = directory
 
 

@@ -162,6 +162,24 @@ class Basket:
     def get_msg(self, issue_id, envelope_callback=None, message_callback=None, post_callback=None):
         return self.__get_msg(issue_id, envelope_callback=envelope_callback, message_callback=message_callback, post_callback=post_callback)
  
+    
+    def dep(self, issue_id, dependency_issue_id):
+        r = self.state.get(issue_id)
+        self.state.get(dependency_issue_id)
+        o = Issue.from_str(r)
+        r = o.dep(dependency_issue_id)
+        self.state.replace(issue_id, contents=str(o))
+        return r
+
+
+    def undep(self, issue_id, dependency_issue_id):
+        r = self.state.get(issue_id)
+        self.state.get(dependency_issue_id)
+        o = Issue.from_str(r)
+        r = o.undep(dependency_issue_id)
+        self.state.replace(issue_id, contents=str(o))
+        return r
+
 
     def assign(self, issue_id, identity):
         r = self.state.get(issue_id)

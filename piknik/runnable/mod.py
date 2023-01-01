@@ -1,9 +1,13 @@
 import sys
 import argparse
+import logging
 
 from piknik import Basket
 from piknik import Issue
 from piknik.store import FileStoreFactory
+
+logging.basicConfig(level=logging.DEBUG)
+logg = logging.getLogger()
 
 
 argp = argparse.ArgumentParser()
@@ -19,6 +23,8 @@ argp.add_argument('-u', '--untag', type=str, action='append', default=[], help='
 argp.add_argument('-a', '--assign', type=str, action='append', default=[], help='Assign given identity to issue')
 argp.add_argument('--unassign', type=str, action='append', default=[], help='Unassign given identity from issue')
 argp.add_argument('-o', '--owner', type=str, help='Set given identity as owner of issue')
+argp.add_argument('--dep', action='append', default=[], type=str, help='Set issue dependency')
+argp.add_argument('--undep', action='append', default=[], type=str, help='Remove issue dependency')
 argp.add_argument('issue_id', type=str, help='Issue id to modify')
 arg = argp.parse_args(sys.argv[1:])
 
@@ -51,7 +57,13 @@ def main():
 
     for v in arg.assign:
         basket.assign(arg.issue_id, v)
-       
+ 
+    for v in arg.undep:
+        basket.undep(arg.issue_id, v)
+
+    for v in arg.dep:
+        basket.dep(arg.issue_id, v)
+
     if arg.owner:
         basket.owner(arg.issue_id, arg.owner)
 

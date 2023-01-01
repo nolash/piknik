@@ -6,7 +6,7 @@ import datetime
 # local imports
 from piknik.identity import Identity
 from piknik.error import UnknownIdentityError
-from piknik.error import AlreadyAssignedError
+from piknik.error import ExistsError
 
 
 class Issue:
@@ -18,6 +18,7 @@ class Issue:
         self.title = title
         self.assigned = []
         self.assigned_time = []
+        self.dependencies = []
         self.owner_idx = 0
 
 
@@ -33,16 +34,31 @@ class Issue:
             if r['owner'] == None or k == r['owner']:
                 r['owner'] = k
                 o.owner_idx = i
+        for v in r['dependencies']:
+            o.dep(v)
         return o
 
 
     def assign(self, identity, t=None):
         if identity in self.assigned:
-            raise AlreadyAssignedError(identity)
+            raise ExistsError(identity)
         if t == None:
             t = datetime.datetime.utcnow()
         self.assigned.append(identity)
         self.assigned_time.append(t)
+
+    
+    def dep(self, dependency_issue_id):
+        if dependency_issue_id in self.dependencies:
+            raise ExistsError(self.id, dependency_issue_id)
+        self.dependencies.append(dependency_issue_id)
+
+
+    def undep(self, dependency_issue_id=None):
+        if dependency_issue_id == None:
+            self.dependencies = []
+            return
+        self.dependencies.remove(dependency_issue_id)
 
 
     def get_assigned(self):
@@ -86,6 +102,7 @@ class Issue:
             'id': str(self.id),
             'title': self.title,
             'assigned': {},
+            'dependencies': self.dependencies,
             'owner': None,
             }
 

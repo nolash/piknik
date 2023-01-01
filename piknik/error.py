@@ -2,7 +2,7 @@ class DeadIssue(Exception):
     pass
 
 
-class AlreadyAssignedError(Exception):
+class ExistsError(Exception):
     pass
 
 
