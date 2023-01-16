@@ -12,6 +12,7 @@ logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
 argp.add_argument('-d', type=str, help='Data directory')
+argp.add_argument('--accept', action='store_true', help='Accept proposed issue')
 argp.add_argument('--block', action='store_true', help='Set issue as blocked')
 argp.add_argument('--unblock', action='store_true', help='Set issue as unblocked')
 argp.add_argument('--finish', action='store_true', help='Set issue as finished (alias of -s finish)')
@@ -45,6 +46,10 @@ def main():
         m(arg.issue_id)
     elif arg.finish:
         basket.state_finish(arg.issue_id)
+    elif arg.accept:
+        if basket.get_state(arg.issue_id) != 'PROPOSED':
+            raise ValueError('Issue already accepted')
+        basket.advance(arg.issue_id)
 
     for v in arg.tag:
         basket.tag(arg.issue_id, v)

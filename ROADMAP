@@ -11,3 +11,4 @@
 		- target hash above
 		- git tag
 		- arbitrary string identifier
+	* Add renderer result tests for plain, html
