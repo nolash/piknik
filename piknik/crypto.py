@@ -9,6 +9,7 @@ import gnupg
 
 # local imports
 from piknik.error import VerifyError
+from piknik.error import UnknownIdentityError
 from piknik.wrap import Wrapper
 
 logg = logging.getLogger(__name__)

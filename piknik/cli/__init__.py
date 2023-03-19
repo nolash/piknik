@@ -4,7 +4,7 @@ import os
 # local imports
 from piknik import Basket
 from piknik.store import FileStoreFactory
-
+from piknik.crypto import PGPSigner
 
 class Context:
 
@@ -13,6 +13,11 @@ class Context:
         self.files_dir = arg.files_dir
         #self.store_factory = FileStoreFactory(arg.d)
         store_factory = FileStoreFactory(arg.d)
-        self.basket = Basket(store_factory)
+        self.signer = None
+        sign_fn = None
+        if hasattr(arg, 's'):
+            self.signer = PGPSigner(default_key=arg.s, use_agent=True)
+            sign_fn = self.signer.sign
+        self.basket = Basket(store_factory, message_wrapper=sign_fn)
         self.gpg_home = gpg_home
         assembler(self, arg)

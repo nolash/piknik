@@ -14,8 +14,9 @@ from piknik.cli import Context
 from piknik.cli.show import subparser as subparser_show
 from piknik.cli.mod import subparser as subparser_mod
 from piknik.cli.add import subparser as subparser_add
+from piknik.cli.comment import subparser as subparser_comment
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
@@ -28,6 +29,7 @@ argsub = argp.add_subparsers(title='subcommand', dest='subcmd')
 argsub = subparser_show(argsub)
 argsub = subparser_mod(argsub)
 argsub = subparser_add(argsub)
+argsub = subparser_comment(argsub)
 arg = argp.parse_args(sys.argv[1:])
 
 m = None
@@ -37,6 +39,8 @@ elif arg.subcmd == 'mod':
     m = importlib.import_module('piknik.cli.mod')
 elif arg.subcmd == 'add':
     m = importlib.import_module('piknik.cli.add')
+elif arg.subcmd == 'comment':
+    m = importlib.import_module('piknik.cli.comment')
 else:
     raise ValueError('invalid subcommand: ' + arg.subcmd)
 

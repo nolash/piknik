@@ -1,11 +1,14 @@
 # standard imports
 import os
 import uuid
+import logging
 
 # external imports
 from shep.store.file import SimpleFileStoreFactory
 from shep.persist import PersistedState
 from leveldir.hex import HexDir
+
+logg = logging.getLogger(__name__)
 
 
 def default_formatter(hx):
@@ -39,7 +42,7 @@ class MsgDir(HexDir):
 
     def put(self, k, v):
         u = uuid.UUID(k)
-        print('putting {}'.format(u.bytes.hex()))
+        logg.debug('putting {}'.format(u.bytes.hex()))
         return self.add(u.bytes, v)
 
 
