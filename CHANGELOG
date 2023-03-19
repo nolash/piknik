@@ -1,3 +1,5 @@
+- 0.3.0
+	* Implement cli as subcommands
 - 0.2.3
 	* Add possibility to set dependencies between issues
 	* Set default data directory under working directory
