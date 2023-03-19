@@ -8,16 +8,16 @@ ctx = None
 
 
 def subparser(argp):
-    arg = argp.add_parser('comment')
-    arg.add_argument('-s', '--sign-as', dest='s', type=str, help='PGP fingerprint of key to sign issue update with')
-    arg.add_argument('-r', type=str, action='append', default=[], help='Add literal message text')
-    arg.add_argument('-f', type=str, action='append', default=[], help='Add arbitrary file as content')
+    argp.add_argument('-s', '--sign-as', dest='s', type=str, help='PGP fingerprint of key to sign issue update with')
+    argp.add_argument('-x', '--text', dest='x', type=str, action='append', default=[], help='Add literal message text')
+    argp.add_argument('-y', '--file', dest='y', type=str, action='append', default=[], help='Add arbitrary file as content')
     return argp
 
 
 def assembler(o, arg):
-    o.r = arg.r
-    o.f = arg.f
+    o.x = arg.x
+    o.y = arg.y
+    o.s = arg.s
 
 
 next_i = 1
@@ -30,7 +30,7 @@ def next_message_arg():
         next_i += 1
         return None
 
-    if r[1] not in ['r', 'i', 't', 'f']:
+    if r[1] not in ['r', 'i', 'x', 'y']:
         next_i += 1
         return None
 
@@ -49,9 +49,9 @@ def main():
         if r == None:
             continue
 
-        if r[0] == 'r':
+        if r[0] == 'x':
             messages.append('s:' + r[1])
-        elif r[0] == 'f':
+        elif r[0] == 'y':
             messages.append('f:' + r[1])
 
     ctx.basket.msg(ctx.issue_id, *messages)

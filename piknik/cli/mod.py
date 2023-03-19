@@ -7,21 +7,20 @@ ctx = None
 
 
 def subparser(argp):
-    arg = argp.add_parser('mod')
-    arg.add_argument('--accept', action='store_true', help='Accept proposed issue')
-    arg.add_argument('--block', action='store_true', help='Set issue as blocked')
-    arg.add_argument('--unblock', action='store_true', help='Set issue as unblocked')
-    arg.add_argument('--finish', action='store_true', help='Set issue as finished (alias of -s finish)')
-    arg.add_argument('-s', '--state', type=str, help='Move to state')
-    arg.add_argument('-t', '--tag', type=str, action='append', default=[], help='Add tag to issue')
-    arg.add_argument('-u', '--untag', type=str, action='append', default=[], help='Remove tag from issue')
+    argp.add_argument('--accept', action='store_true', help='Accept proposed issue')
+    argp.add_argument('--block', action='store_true', help='Set issue as blocked')
+    argp.add_argument('--unblock', action='store_true', help='Set issue as unblocked')
+    argp.add_argument('--finish', action='store_true', help='Set issue as finished (alias of -s finish)')
+    argp.add_argument('-s', '--state', type=str, help='Move to state')
+    argp.add_argument('-t', '--tag', type=str, action='append', default=[], help='Add tag to issue')
+    argp.add_argument('-u', '--untag', type=str, action='append', default=[], help='Remove tag from issue')
     #argp.add_argument('-f', '--file', type=str, action='append', help='Add message file part')
     #argp.add_argument('-m', '--message', type=str, action='append', default=[], help='Add message text part')
-    arg.add_argument('-a', '--assign', type=str, action='append', default=[], help='Assign given identity to issue')
-    arg.add_argument('--unassign', type=str, action='append', default=[], help='Unassign given identity from issue')
-    arg.add_argument('-o', '--owner', type=str, help='Set given identity as owner of issue')
-    arg.add_argument('--dep', action='append', default=[], type=str, help='Set issue dependency')
-    arg.add_argument('--undep', action='append', default=[], type=str, help='Remove issue dependency')
+    argp.add_argument('-a', '--assign', type=str, action='append', default=[], help='Assign given identity to issue')
+    argp.add_argument('--unassign', type=str, action='append', default=[], help='Unassign given identity from issue')
+    argp.add_argument('--owner', type=str, help='Set given identity as owner of issue')
+    argp.add_argument('--dep', action='append', default=[], type=str, help='Set issue dependency')
+    argp.add_argument('--undep', action='append', default=[], type=str, help='Remove issue dependency')
     return argp
 
 

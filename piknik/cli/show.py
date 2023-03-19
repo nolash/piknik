@@ -2,6 +2,7 @@
 import os
 import logging
 import importlib
+import argparse
 
 # local imports
 from piknik import Issue
@@ -45,11 +46,10 @@ def reset_accumulator():
 
 
 def subparser(argp):
-    arg = argp.add_parser('show')
-    arg.add_argument('-r', '--renderer', type=str, default='default', help='Renderer module for output')
-    arg.add_argument('-s', '--state', type=str, action='append', default=[], help='Limit results to state(s)')
-    arg.add_argument('--show-finished', dest='show_finished', action='store_true', help='Include finished issues')
-    arg.add_argument('--reverse', action='store_true', help='Sort comments by oldest first')
+    argp.add_argument('-r', '--renderer', type=str, default='default', help='Renderer module for output')
+    argp.add_argument('-s', '--state', type=str, action='append', default=[], help='Limit results to state(s)')
+    argp.add_argument('--show-finished', dest='show_finished', action='store_true', help='Include finished issues')
+    argp.add_argument('--reverse', action='store_true', help='Sort comments by oldest first')
     return argp
 
 

@@ -8,8 +8,7 @@ ctx = None
 
 
 def subparser(argp):
-    arg = argp.add_parser('add')
-    arg.add_argument('title', type=str, nargs='*', help='issue title')
+    argp.add_argument('title', type=str, nargs='*', help='issue title')
     return argp
 
 
