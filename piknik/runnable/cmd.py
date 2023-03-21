@@ -17,7 +17,7 @@ from piknik.cli.mod import subparser as subparser_mod
 from piknik.cli.add import subparser as subparser_add
 from piknik.cli.comment import subparser as subparser_comment
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
 
 argp = argparse.ArgumentParser()
@@ -55,5 +55,11 @@ arg = argp.parse_args(sys.argv[1:])
 
 m.ctx = Context(arg, m.assembler)
 
-if __name__ == '__main__':
+
+def main():
+    global m
     m.main()
+
+
+if __name__ == '__main__':
+    main()
