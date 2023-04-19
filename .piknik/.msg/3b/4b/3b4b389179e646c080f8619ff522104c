@@ -1,0 +1,49 @@
+Subject: Clean empty tag directories on tag change
+X-Piknik-Id: 3b4b3891-79e6-46c0-80f8-619ff522104c
+Date: Wed, 19 Apr 2023 09:57:33 -0000
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="9f230b57-a541-4fe3-ba34-cc6e9280e7c5"
+
+--9f230b57-a541-4fe3-ba34-cc6e9280e7c5
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="===============8854851201361386720=="
+X-Piknik-Envelope: pgp
+
+--===============8854851201361386720==
+X-Piknik-Msg-Id: 8686e22e-9f15-4533-9e46-b188e4a0741b
+Date: Wed, 19 Apr 2023 09:57:33 -0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="8724b4fa-70bb-4481-8826-d7429707c4f8"
+From: Louis Holbrook (lash) <l@holbrook.no>
+
+--8724b4fa-70bb-4481-8826-d7429707c4f8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+git transfers of the piknik data directory does not include empty dirs. that means that abandoned tags will not be present and this breaks the piknik show
+--8724b4fa-70bb-4481-8826-d7429707c4f8--
+
+--===============8854851201361386720==
+MIME-Version: 1.0
+Content-Type: application/pgp-signature
+Content-Disposition: attachment;
+ filename="8686e22e-9f15-4533-9e46-b188e4a0741b.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEWahEpISsESU9Oj6dzcvSTdHQ4AEFAmQ/uw0ACgkQzcvSTdHQ
+4AGm9wf/QsCwr8WDCvZ1KGY3rI6NZDMdntZZ21vGoDUp3hZTd0jGpluvGbYa7327
+3zE/96szynrCNujZskKSEGLac2RXoQv2bD1pcsn6WIzYmm7xhSft3+kHQSegWfOr
+mQCnDy9DHho4uaXwj3f++wyCyNrxzkhM6n24lUuXrsYuJ7XtWMsYGBE3nEOtqqW6
+0TeVbyQWXYlpXDW1kwdCgjavM/kAYz8l+u/skwDmdVWLfCqy9vEkDlo8sQf64Faa
+fKSiF10wGOolCI67lK2lOGB2B6l1ZA8921Xy/V0NSUKvZyjJdP2KoyGEbHsVjs5d
++ZpLgvIWZjoMddZ3J4mGEVqu4sSSMw==
+=omf8
+-----END PGP SIGNATURE-----
+
+--===============8854851201361386720==--
+
+--9f230b57-a541-4fe3-ba34-cc6e9280e7c5--
