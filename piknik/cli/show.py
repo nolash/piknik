@@ -16,10 +16,9 @@ logg = logging.getLogger(__name__)
 
 
 
-def set_accumulator(ctx, issue_id=None):
+def set_accumulator(ctx, m, issue_id=None):
     global accumulator_f
     global accumulator
-    global m
     if ctx.files_dir != None:
         fb = None
         if issue_id == None:
@@ -81,13 +80,13 @@ def main():
         issues.append(ctx.issue_id)
 
     if ctx.issue_id == None:
-        accumulator = set_accumulator(ctx)
+        accumulator = set_accumulator(ctx, m)
         renderer = m.Renderer(ctx.basket, accumulator=accumulator)
         renderer.apply()
         issues = reset_accumulator()
 
     for issue_id in issues:
-        accumulator = set_accumulator(ctx, issue_id=issue_id)
+        accumulator = set_accumulator(ctx, m, issue_id=issue_id)
         issue = ctx.basket.get(issue_id)
         tags = ctx.basket.tags(issue_id)
         state = ctx.basket.get_state(issue_id)

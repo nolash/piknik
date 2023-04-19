@@ -1,3 +1,5 @@
+- 0.3.1
+	* Fix fail when generating html to outfile with show cli
 - 0.3.0
 	* Implement cli as subcommands
 - 0.2.3
