@@ -69,6 +69,10 @@ class Basket:
         return self.state.list(category)
 
 
+    def state_pending(self, issue_id):
+        self.state.move(issue_id, self.state.PENDING)
+
+
     def state_doing(self, issue_id):
         self.state.move(issue_id, self.state.DOING)
 
