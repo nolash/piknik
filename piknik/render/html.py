@@ -25,6 +25,7 @@ class Accumulator:
         #self.envelope_content = None
         self.envelope = None
         self.w = w
+        self.last_v = None
         self.issues = []
 
 
@@ -38,8 +39,10 @@ class Accumulator:
                 self.category.add(self.msg)
                 #self.doc.add(self.msg)
             self.doc.add(self.category)
+            if self.last_v != None:
+                self.category.add(li(self.last_v))
             w.write(self.doc.render())
-            return
+            return False
 
         v_id = getattr(v, 'id', '')
         logg.debug('add id {}'.format(v_id))
@@ -68,14 +71,17 @@ class Accumulator:
                 self.envelope.add(v)
         else:
             self.doc = v
+            self.last_v = None
+        self.last_v = v
+        return True
 
 
 class Renderer(BaseRenderer):
 
-    def __init__(self, basket, accumulator=None, wrapper=None, outdir=None):
+    def __init__(self, basket, accumulator=None, wrapper=None, outdir=None, states_include=[], states_skip=[]):
         if accumulator == None:
             accumulator = Accumulator().add
-        super(Renderer, self).__init__(basket, accumulator=accumulator, wrapper=wrapper)
+        super(Renderer, self).__init__(basket, accumulator=accumulator, wrapper=wrapper, states_include=states_include, states_skip=states_skip)
         self.outdir = outdir
 
 

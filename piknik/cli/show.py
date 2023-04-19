@@ -79,9 +79,13 @@ def main():
     if ctx.issue_id:
         issues.append(ctx.issue_id)
 
+    states_skip = []
+    if not ctx.show_finished:
+        states_skip.append('FINISHED')
+
     if ctx.issue_id == None:
         accumulator = set_accumulator(ctx, m)
-        renderer = m.Renderer(ctx.basket, accumulator=accumulator)
+        renderer = m.Renderer(ctx.basket, accumulator=accumulator, states_include=ctx.show_states, states_skip=states_skip)
         renderer.apply()
         issues = reset_accumulator()
 
@@ -91,7 +95,7 @@ def main():
         tags = ctx.basket.tags(issue_id)
         state = ctx.basket.get_state(issue_id)
         verifier = PGPSigner(home_dir=ctx.gpg_home, skip_verify=False)
-        renderer = m.Renderer(ctx.basket, wrapper=verifier, accumulator=accumulator)
+        renderer = m.Renderer(ctx.basket, wrapper=verifier, accumulator=accumulator, states_include=ctx.show_states, states_skip=states_skip)
 
         renderer.apply_begin()
         renderer.apply_issue(state, issue, tags)

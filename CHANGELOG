@@ -1,3 +1,7 @@
+- 0.3.3
+	* Enable state filtering controls from cli
+	* Make finished issues not visible by default
+	* Fix last state category truncate in html rendering
 - 0.3.2
 	* Add handler for setting pending state
 	* Upgrade shep to handle empty tag directories when transferring (empty) state directories over git

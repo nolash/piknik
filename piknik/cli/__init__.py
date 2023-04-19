@@ -11,6 +11,8 @@ class Context:
     def __init__(self, arg, assembler, mode=0, gpg_home=os.environ.get('GPGHOME')):
         self.issue_id = arg.issue_id
         self.files_dir = arg.files_dir
+        self.show_finished = arg.show_finished
+        self.show_states = arg.state
         #self.store_factory = FileStoreFactory(arg.d)
         store_factory = FileStoreFactory(arg.d)
         self.signer = None

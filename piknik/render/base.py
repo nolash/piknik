@@ -14,13 +14,31 @@ def stream_accumulator(v, w=sys.stdout):
 
 class Renderer:
 
-    def __init__(self, basket, accumulator=None, wrapper=None):
+    def __init__(self, basket, accumulator=None, wrapper=None, states_include=[], states_skip=[]):
         self.b = basket
         self.a = accumulator
         self.w = wrapper
         if self.w == None:
             logg.info('no wrapper defined. no message parts will be output')
         self.render_mode = 0
+        self.states = []
+        self.__make_state_filter(states_include, states_skip)
+       
+
+    def __make_state_filter(self, include, skip):
+        have_include = False
+        for i in range(len(include)):
+            include[i] = include[i].upper()
+            have_include = True
+        for i in range(len(skip)):
+            skip[i] = skip[i].upper()
+        for state in self.b.states():
+            if have_include:
+                if state not in include:
+                    continue
+            elif state in skip:
+                continue
+            self.states.append(state)
 
 
     def add(self, v, accumulator=None):
@@ -28,7 +46,7 @@ class Renderer:
             accumulator = self.a
         if accumulator != None:
             if v != None:
-                accumulator(v)
+                r = accumulator(v)
 
 
     def apply_envelope_pre(self, state, issue, tags, envelope, accumulator=None):
@@ -147,7 +165,8 @@ class Renderer:
         r = self.apply_begin()
         self.add(r)
 
-        for state in self.b.states():
+        #for state in self.b.states():
+        for state in self.states:
             r = self.apply_state_pre(state)
             self.add(r)
             r = self.apply_state(state)
