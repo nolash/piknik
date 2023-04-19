@@ -1,5 +1,6 @@
 - 0.3.2
 	* Add handler for setting pending state
+	* Upgrade shep to handle empty tag directories when transferring (empty) state directories over git
 - 0.3.1
 	* Fix fail when generating html to outfile with show cli
 - 0.3.0

@@ -74,7 +74,7 @@ class FileStoreFactory:
             state.add(k)
 
         for v in aliases:
-            s = state.from_elements(v)
+            s = state.from_elements(v, create_missing=True)
             state.alias(v, s)
                 
         return state
