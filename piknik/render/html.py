@@ -129,7 +129,7 @@ class Renderer(BaseRenderer):
                 r_r.add(li(ss))
             s.add(dd(r_r))
 
-        r.add(s)
+        #r.add(s)
 
         deps = issue.get_dependencies()
         s.add(dt('depends on'))
