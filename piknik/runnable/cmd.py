@@ -26,14 +26,18 @@ argp.add_argument('-f', '--files', dest='f', action='store_true', help='Save att
 argp.add_argument('-o', '--files-dir', dest='files_dir', type=str, help='Directory to output saved files to')
 argp.add_argument('-v', action='store_true', help='Turn on debug logs')
 argp.add_argument('-i','--issue-id',  type=str, help='Issue id to show')
-argp.add_argument('cmd', type=str, help='subcommand to execute')
+argp.add_argument('cmd', type=str, choices=['show', 'add', 'mod', 'comment'], help='subcommand to execute')
 strargs = copy.copy(sys.argv[1:])
+
+have_help = False
 try:
     strargs.remove('-h')
+    have_help = True
 except ValueError:
     pass
 try:
     strargs.remove('--help')
+    have_help = True
 except ValueError:
     pass
 arg, unknown = argp.parse_known_args(strargs)
@@ -48,7 +52,8 @@ elif arg.cmd == 'mod':
 elif arg.cmd == 'comment':
     m = importlib.import_module('piknik.cli.comment')
 else:
-    raise ValueError('unknown subcommand')
+    if not have_help:
+        raise ValueError('unknown subcommand')
 
 
 argp = m.subparser(argp)
