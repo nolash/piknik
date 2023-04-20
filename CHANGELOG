@@ -1,3 +1,6 @@
+- 0.3.8
+	* Fix broken add tool
+	* Add minimal sanity cli tests
 - 0.3.7
 	* Complete incomplete change from 0.3.6
 - 0.3.6

@@ -12,3 +12,6 @@ done
 set +x
 set +e
 set +a
+
+>&2 echo run minimal cli tests
+bash test_cli.sh

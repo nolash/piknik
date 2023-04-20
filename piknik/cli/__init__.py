@@ -12,7 +12,7 @@ class Context:
         self.issue_id = arg.issue_id
         self.files_dir = arg.files_dir
         self.show_finished = getattr(arg, 'show_finished', False)
-        self.show_states = arg.state
+        self.show_states = getattr(arg, 'state', [])
         #self.store_factory = FileStoreFactory(arg.d)
         store_factory = FileStoreFactory(arg.d)
         self.signer = None
