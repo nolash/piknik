@@ -1,3 +1,5 @@
+- 0.3.5
+	* Fix crash using other tools than show on missing --show-missing flag.
 - 0.3.4
 	* Fix endless recursion bug for html issue render introduced in v0.3.3
 - 0.3.3
