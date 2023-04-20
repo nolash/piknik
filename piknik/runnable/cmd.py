@@ -26,7 +26,7 @@ argp.add_argument('-f', '--files', dest='f', action='store_true', help='Save att
 argp.add_argument('-o', '--files-dir', dest='files_dir', type=str, help='Directory to output saved files to')
 argp.add_argument('-v', action='store_true', help='Turn on debug logs')
 argp.add_argument('-i','--issue-id',  type=str, help='Issue id to show')
-argp.add_argument('cmd', type=str, choices=['show', 'add', 'mod', 'comment'], help='subcommand to execute')
+argp.add_argument('cmd', type=str, nargs='?', choices=['show', 'add', 'mod', 'comment'], help='subcommand to execute')
 strargs = copy.copy(sys.argv[1:])
 
 have_help = False
@@ -55,8 +55,9 @@ else:
     if not have_help:
         raise ValueError('unknown subcommand')
 
+if m != None:
+    argp = m.subparser(argp)
 
-argp = m.subparser(argp)
 arg = argp.parse_args(sys.argv[1:])
 if arg.v:
     logg.setLevel(logging.DEBUG)
