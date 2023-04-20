@@ -1,3 +1,5 @@
+- 0.3.4
+	* Fix endless recursion bug for html issue render introduced in v0.3.3
 - 0.3.3
 	* Enable state filtering controls from cli
 	* Make finished issues not visible by default

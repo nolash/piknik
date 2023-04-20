@@ -38,15 +38,17 @@ class Accumulator:
             if self.msg != None:
                 self.category.add(self.msg)
                 #self.doc.add(self.msg)
-            self.doc.add(self.category)
             if self.last_v != None:
                 self.category.add(li(self.last_v))
+            self.doc.add(self.category)
             w.write(self.doc.render())
-            return False
+            self.last_v = None
 
         v_id = getattr(v, 'id', '')
         logg.debug('add id {}'.format(v_id))
         if len(v_id) > 1:
+            if v_id[0] == 's':
+                self.last_v = v
             if v_id[:2] == 's_':
                 if self.issue != None:
                     self.category_content.add(self.issue)
@@ -72,8 +74,6 @@ class Accumulator:
         else:
             self.doc = v
             self.last_v = None
-        self.last_v = v
-        return True
 
 
 class Renderer(BaseRenderer):
@@ -89,8 +89,9 @@ class Renderer(BaseRenderer):
         self.render_mode = 1
         v = div(_id='s_' + state.lower())
         v.add(h2(state))
-        self.add(v)
+        #self.add(v)
         super(Renderer, self).apply_state(state, accumulator=accumulator)
+        return v
 
 
     def apply_issue(self, state, issue, tags, accumulator=None):
@@ -135,7 +136,7 @@ class Renderer(BaseRenderer):
                 r_r.add(li(ss))
             s.add(dd(r_r))
 
-        r.add(s)
+        #r.add(s)
 
         deps = issue.get_dependencies()
         s.add(dt('depends on'))
