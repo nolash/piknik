@@ -89,9 +89,8 @@ class Renderer(BaseRenderer):
         self.render_mode = 1
         v = div(_id='s_' + state.lower())
         v.add(h2(state))
-        #self.add(v)
+        self.add(v)
         super(Renderer, self).apply_state(state, accumulator=accumulator)
-        return v
 
 
     def apply_issue(self, state, issue, tags, accumulator=None):
