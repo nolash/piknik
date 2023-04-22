@@ -1,3 +1,7 @@
+- 0.3.13:
+	* Invoke show command as default if no subcommand specified
+- 0.3.12:
+	* Auto-generate alias from uuid when missing
 - 0.3.11:
 	* Make msg, tag and dep work with alias
 - 0.3.10

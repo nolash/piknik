@@ -54,7 +54,8 @@ elif arg.cmd == 'comment':
     m = importlib.import_module('piknik.cli.comment')
 else:
     if not have_help:
-        raise ValueError('unknown subcommand')
+        #raise ValueError('unknown subcommand')
+        m = importlib.import_module('piknik.cli.show')
 
 if m != None:
     argp = m.subparser(argp)
