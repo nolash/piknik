@@ -8,7 +8,6 @@ ctx = None
 
 
 def subparser(argp):
-    argp.add_argument('-a', '--alias', dest='alias', type=str, help='alias string to refer to issue to with cli commands')
     argp.add_argument('title', type=str, nargs='*', help='issue title')
     return argp
 

@@ -49,10 +49,10 @@ class Basket:
     def add(self, issue):
         issue_id = str(issue.id)
         j = str(issue)
-        self.state.put(issue_id, contents=j)
-        self.__tags.put(issue_id)
         if issue.alias != None:
             self.__alias.put(issue.alias, issue.id)
+        self.state.put(issue_id, contents=j)
+        self.__tags.put(issue_id)
         return issue_id
 
 

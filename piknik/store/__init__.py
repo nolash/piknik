@@ -70,7 +70,7 @@ class AliasDir:
         u = uuid.UUID(v)
         fp = os.path.join(self.dir, k)
         logg.debug('putting {} {}'.format(u.bytes.hex(), fp))
-        f = open(fp, 'wb')
+        f = open(fp, 'xb')
         f.write(u.bytes)
         f.close()
 

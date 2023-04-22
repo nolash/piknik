@@ -50,11 +50,14 @@ class Renderer(BaseRenderer):
         if self.render_mode == 0:
             return self.apply_issue_standalone(state, issue, tags, accumulator=accumulator)
 
-        s = '{}\t{}\t{}\n'.format(
+        s = '{}\t{}\t{}'.format(
                 issue.title,
                 ','.join(tags),
                 issue.id,
                 )
+        if issue.alias != None:
+            s += " (" + issue.alias + ")"
+        s += "\n"
         self.add(s, accumulator=accumulator)
         super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)
 
