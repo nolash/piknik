@@ -1,3 +1,6 @@
+- 0.3.9
+	* Add issue id alias for easier referencing when cli manipulation
+	* Auto-generate disposable gnupg key for cli test
 - 0.3.8
 	* Fix broken add tool
 	* Add minimal sanity cli tests
