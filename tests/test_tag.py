@@ -37,6 +37,16 @@ class TestBasic(unittest.TestCase):
         self.b.tag(v, 'pinky')
         self.b.untag(v, 'pinky')
 
+
+    def test_setget_alias(self):
+        o = Issue('foo', alias='bar')
+        v = self.b.add(o)
+        self.b.tag('bar', 'inky')
+        self.b.tag('bar', 'pinky')
+        self.b.untag('bar', 'pinky')
+        self.assertEqual(self.b.tags('bar'), ['INKY']) 
+
+
  
 if __name__ == '__main__':
     unittest.main()

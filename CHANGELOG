@@ -1,3 +1,5 @@
+- 0.3.11:
+	* Make msg, tag and dep work with alias
 - 0.3.10
 	* Fix backward compatibilty for issue structs without alias
 - 0.3.9

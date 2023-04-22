@@ -126,6 +126,5 @@ class TestBasic(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             o = self.b.get("first")
 
-
 if __name__ == '__main__':
     unittest.main()

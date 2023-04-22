@@ -57,7 +57,7 @@ class Basket:
 
 
     def get(self, issue_id):
-        logg.debug("basked issue get {}".format(issue_id))
+        logg.debug("basket issue get {}".format(issue_id))
         r = self.state.get(issue_id)
         if r == None:
             aliased_issue_id = self.__alias.get(issue_id)
@@ -135,31 +135,33 @@ class Basket:
         except AttributeError:
             self.__tags.add(tag)
             v = self.__tags.from_name(tag)
-      
+     
+        o = self.get(issue_id)
         move = False
         try:
-            r = self.__tags.state(issue_id)
+            r = self.__tags.state(o.id)
             if r == 0:
                 move = True
         except shep.error.StateItemNotFound:
-            self.__tags.put(issue_id)
+            self.__tags.put(o.id)
             move = True
 
         if move:
-            self.__tags.move(issue_id, v)
+            self.__tags.move(o.id, v)
         else:
-            self.__tags.set(issue_id, v)
+            self.__tags.set(o.id, v)
 
 
 
     def untag(self, issue_id, tag):
         v = self.__tags.from_name(tag)
-        self.__tags.unset(issue_id, v, allow_base=True)
+        o = self.get(issue_id)
+        self.__tags.unset(o.id, v, allow_base=True)
 
 
     def tags(self, issue_id):
         o = self.get(issue_id)
-        v = self.__tags.state(o.id) #issue_id)
+        v = self.__tags.state(o.id)
         r = self.__tags.elements(v)
         if r == 'UNTAGGED':
             r = '(' + r + ')'
@@ -167,9 +169,7 @@ class Basket:
 
 
     def __get_msg(self, issue_id, envelope_callback=None, message_callback=None, post_callback=None):
-        #r = self.state.get(issue_id)
         o = self.get(issue_id)
-        #o = Issue.from_str(r)
         try:
             v = self.__msg.get(o.id)
             m = IssueMessage.parse(o, v.decode('utf-8'), envelope_callback=envelope_callback, message_callback=message_callback, post_callback=post_callback)
@@ -185,31 +185,23 @@ class Basket:
  
     
     def dep(self, issue_id, dependency_issue_id):
-        #r = self.state.get(issue_id)
         o = self.get(issue_id)
-        #self.state.get(dependency_issue_id)
-        self.get(dependency_issue_id)
-        #o = Issue.from_str(r)
-        r = o.dep(dependency_issue_id)
+        od = self.get(dependency_issue_id)
+        r = o.dep(od.id)
         self.state.replace(o.id, contents=str(o))
         return r
 
 
     def undep(self, issue_id, dependency_issue_id):
-        #r = self.state.get(issue_id)
         o = self.get(issue_id)
-        #self.state.get(dependency_issue_id)
         self.get(dependency_issue_id)
-        #o = Issue.from_str(r)
         r = o.undep(dependency_issue_id)
         self.state.replace(o.id, contents=str(o))
         return r
 
 
     def assign(self, issue_id, identity):
-        #r = self.state.get(issue_id)
         o = self.get(issue_id)
-        #o = Issue.from_str(r)
         v = Identity(identity)
         r = o.assign(v)
         self.state.replace(o.id, contents=str(o))
@@ -217,9 +209,7 @@ class Basket:
 
 
     def owner(self, issue_id, identity):
-        #r = self.state.get(issue_id)
         o = self.get(issue_id)
-        #o = Issue.from_str(r)
         v = Identity(identity)
         r = o.set_owner(v)
         self.state.replace(o.id, contents=str(o))
@@ -227,9 +217,7 @@ class Basket:
 
 
     def unassign(self, issue_id, identity):
-        #r = self.state.get(issue_id)
         o = self.get(issue_id)
-        #o = Issue.from_str(r)
         v = Identity(identity)
         r = o.unassign(v)
         self.state.replace(o.id, contents=str(o))
@@ -237,8 +225,9 @@ class Basket:
 
 
     def msg(self, issue_id, *args):
-        m = self.__get_msg(issue_id)
+        o = self.get(issue_id)
+        m = self.__get_msg(o.id)
         m.add(*args, wrapper=self.__msg_wrap)
         ms = m.as_bytes()
-        self.__msg.put(issue_id, ms)
+        self.__msg.put(o.id, ms)
         return m
