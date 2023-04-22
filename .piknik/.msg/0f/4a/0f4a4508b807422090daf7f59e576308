@@ -1,0 +1,49 @@
+Subject: foo
+X-Piknik-Id: 0f4a4508-b807-4220-90da-f7f59e576308
+Date: Sat, 22 Apr 2023 07:00:43 -0000
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="2a9abe5d-7f61-467a-ba2f-449296a0f8a6"
+
+--2a9abe5d-7f61-467a-ba2f-449296a0f8a6
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="===============6987363940867991124=="
+X-Piknik-Envelope: pgp
+
+--===============6987363940867991124==
+X-Piknik-Msg-Id: 83a900d9-5c8e-4a77-a047-49fb09f78954
+Date: Sat, 22 Apr 2023 07:00:43 -0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="c14f8b99-2d0f-4421-bcc2-36f17574612a"
+From: Louis Holbrook (lash) <l@holbrook.no>
+
+--c14f8b99-2d0f-4421-bcc2-36f17574612a
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+bazbazbaz
+--c14f8b99-2d0f-4421-bcc2-36f17574612a--
+
+--===============6987363940867991124==
+MIME-Version: 1.0
+Content-Type: application/pgp-signature
+Content-Disposition: attachment;
+ filename="83a900d9-5c8e-4a77-a047-49fb09f78954.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEWahEpISsESU9Oj6dzcvSTdHQ4AEFAmRDhhwACgkQzcvSTdHQ
+4AE1uAf+Ow7YaJrM1rtbKpaiZQCdsHCyu9tKK8+HorKU1Ds4e3ocfiod/4WVLtXT
+GLko3u00FOpGpT6uJ016gIB6vEF5PGVRfCdazxvmiJB5rc+Nn8Ohz9GO0xDfQBRP
+3duObptvHWU8WLNIP7aB1vRJ6EspmT+TWf6pissj2v7KJzwncWIrP5jt7pL3Gkun
+EL/i2RB7YJonDGG+eL2pZbUcKs9MsMiazkF7vrfYTBjd2YmwGEqg7/IcZDtVoubY
+fwGPBpEaiTN6V+RI+JTR5zGNj1GpKtaIACYF/VKp8vmz2r1sgRw9IeeZuWCICBDT
+SsQb/ZQH4oMVdy+q3iOVpAQM8G1sLA==
+=KuOx
+-----END PGP SIGNATURE-----
+
+--===============6987363940867991124==--
+
+--2a9abe5d-7f61-467a-ba2f-449296a0f8a6--

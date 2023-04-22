@@ -1,0 +1,52 @@
+Subject: foo
+X-Piknik-Id: 8c5b2f4a-96cf-4208-8772-e71642160f9a
+Date: Sat, 22 Apr 2023 09:45:02 -0000
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="f51af6a8-5c2b-4671-903a-d14e958e9e98"
+
+--f51af6a8-5c2b-4671-903a-d14e958e9e98
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="===============1230079412569314806=="
+X-Piknik-Envelope: pgp
+
+--===============1230079412569314806==
+X-Piknik-Msg-Id: c3d1a149-df9f-4c92-8246-9b617f12a3bc
+Date: Sat, 22 Apr 2023 09:45:02 -0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="9904b3c8-1112-414f-a642-8cb1a78c550e"
+From: testuser
+
+--9904b3c8-1112-414f-a642-8cb1a78c550e
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+bazbazbaz
+--9904b3c8-1112-414f-a642-8cb1a78c550e--
+
+--===============1230079412569314806==
+MIME-Version: 1.0
+Content-Type: application/pgp-signature
+Content-Disposition: attachment;
+ filename="c3d1a149-df9f-4c92-8246-9b617f12a3bc.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCAAdFiEEqXRTJ98ONSuF5OG8TFllpt73U6MFAmRDrJ4ACgkQTFllpt73
+U6OnZwv/XZrc9yux83NtRcJa7yOOcAQa87tcEjjt7K2c+ehXcgLlGn0/0zKcA26a
+q8feiMAD9pYvLc6eFcIHuhtPsfyTljPTEcQqHWV+OCergU2yxvXrbE/6TkXSVAf+
+HLRfY4Mnnyy9bx+T6IeV+Jq1ZlCiElsQOn+q/yNpnB5bslGye4prgXzPOuo8hliF
+Y6YTfraMqvXGg/sfCin0CfJlqCneCVjpBRk71eQgCKgwUHXoX4Jk8ZIkkHkjgA6k
+4JZ/geezoJxesz5GrRnFBgaBc52JzqzlbPITbnfuwOTRmf7/jrwX+q+ZWQD4FmpT
+tc6H6rKlaRH+HEH03PjZDMBMEstKQPh4SKscprPcNx2rfwCnKOAOja1lgO4KrzLs
+P+hnZFdjm2nNiaB0Im4Ba2DrMHCohT++dKB7kvgZKcSVLReK37JBpDe10XrUTdPK
+ewkxos+wte0HYubF1AxmXt5INILi9HTscsx2CalR/0IHMOHpCekSZ9M79Tim3as5
+YbXZPMex
+=wSVW
+-----END PGP SIGNATURE-----
+
+--===============1230079412569314806==--
+
+--f51af6a8-5c2b-4671-903a-d14e958e9e98--

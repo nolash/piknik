@@ -1,0 +1,38 @@
+Subject: foo
+X-Piknik-Id: 199a5214-ea64-41d3-b7e3-0ec973d02e92
+Date: Sat, 22 Apr 2023 07:47:36 -0000
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="39a11e8d-6191-45d7-b8d1-adda42b3131e"
+
+--39a11e8d-6191-45d7-b8d1-adda42b3131e
+MIME-Version: 1.0
+Content-Type: multipart/relative;
+ boundary="===============1436767404757325340=="
+X-Piknik-Envelope: pgp
+
+--===============1436767404757325340==
+X-Piknik-Msg-Id: 7277a3cd-2766-4758-ad59-27d2ba5dff37
+Date: Sat, 22 Apr 2023 07:47:36 -0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="a2121a92-f52b-4a03-b6ef-180d90b52963"
+From: Louis Holbrook (lash) <l@holbrook.no>
+
+--a2121a92-f52b-4a03-b6ef-180d90b52963
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+bazbazbaz
+--a2121a92-f52b-4a03-b6ef-180d90b52963--
+
+--===============1436767404757325340==
+MIME-Version: 1.0
+Content-Type: application/pgp-signature
+Content-Disposition: attachment;
+ filename="7277a3cd-2766-4758-ad59-27d2ba5dff37.asc"
+
+
+--===============1436767404757325340==--
+
+--39a11e8d-6191-45d7-b8d1-adda42b3131e--
