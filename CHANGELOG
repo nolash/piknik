@@ -1,3 +1,5 @@
+- 0.3.14:
+	* Make remaining basket methods work with aliases
 - 0.3.13:
 	* Invoke show command as default if no subcommand specified
 - 0.3.12:

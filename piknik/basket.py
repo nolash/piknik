@@ -93,19 +93,23 @@ class Basket:
 
 
     def state_pending(self, issue_id):
-        self.state.move(issue_id, self.state.PENDING)
+        o = self.get(issue_id)
+        self.state.move(o.id, self.state.PENDING)
 
 
     def state_doing(self, issue_id):
-        self.state.move(issue_id, self.state.DOING)
+        o = self.get(issue_id)
+        self.state.move(o.id, self.state.DOING)
 
 
     def state_review(self, issue_id):
-        self.state.move(issue_id, self.state.REVIEW)
+        o = self.get(issue_id)
+        self.state.move(o.id, self.state.REVIEW)
 
 
     def state_backlog(self, issue_id):
-        self.state.move(issue_id, self.state.BACKLOG)
+        o = self.get(issue_id)
+        self.state.move(o.id, self.state.BACKLOG)
 
 
     def state_finish(self, issue_id):
@@ -116,19 +120,22 @@ class Basket:
 
 
     def advance(self, issue_id):
-        if self.state.state(issue_id) & self.limit > 0:
-            raise DeadIssue(issue_id)
-        self.unblock(issue_id)
-        self.state.next(issue_id)
+        o = self.get(issue_id)
+        if self.state.state(o.id) & self.limit > 0:
+            raise DeadIssue(o.id)
+        self.unblock(o.id)
+        self.state.next(o.id)
 
 
     def unblock(self, issue_id):
-        if self.state.state(issue_id) & self.state.BLOCKED > 0:
-            self.state.unset(issue_id, self.state.BLOCKED)
+        o = self.get(issue_id)
+        if self.state.state(o.id) & self.state.BLOCKED > 0:
+            self.state.unset(o.id, self.state.BLOCKED)
 
 
     def block(self, issue_id):
-        self.state.set(issue_id, self.state.BLOCKED)
+        o = self.get(issue_id)
+        self.state.set(o.id, self.state.BLOCKED)
 
 
     def blocked(self):
