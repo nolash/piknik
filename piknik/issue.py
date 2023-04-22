@@ -37,7 +37,7 @@ class Issue:
                 o.owner_idx = i
         for v in r['dependencies']:
             o.dep(v)
-        o.alias = r['alias']
+        o.alias = r.get('alias')
         return o
 
 

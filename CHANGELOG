@@ -1,3 +1,5 @@
+- 0.3.10
+	* Fix backward compatibilty for issue structs without alias
 - 0.3.9
 	* Add issue id alias for easier referencing when cli manipulation
 	* Auto-generate disposable gnupg key for cli test
