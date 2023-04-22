@@ -9,11 +9,14 @@ from piknik.error import UnknownIdentityError
 from piknik.error import ExistsError
 
 
+def id_generator():
+        return str(uuid.uuid4())
+
 class Issue:
 
-    def __init__(self, title, issue_id=None, alias=None):
+    def __init__(self, title, issue_id=None, alias=None, id_generator=id_generator):
         if issue_id == None:
-            issue_id = str(uuid.uuid4())
+            issue_id = id_generator()
         self.id = issue_id
         self.title = title
         self.assigned = []

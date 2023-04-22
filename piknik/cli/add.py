@@ -24,6 +24,10 @@ def main():
         if title != '':
             title += ' '
         title += s
-    o = Issue(title, alias=ctx.alias)
+    if ctx.alias == None:
+        issue_id = ctx.basket.id_generator()
+        o = Issue(title, issue_id=issue_id, alias=issue_id[:5])
+    else:
+        o = Issue(title, alias=ctx.alias)
     v = ctx.basket.add(o)
     sys.stdout.write(v + '\n')

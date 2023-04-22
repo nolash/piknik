@@ -8,6 +8,7 @@ from shep.error import StateItemNotFound
 # local imports
 from .error import DeadIssue
 from .issue import Issue
+from .issue import id_generator
 from .msg import IssueMessage
 from .identity import Identity
 
@@ -38,6 +39,16 @@ class Basket:
         self.__alias = state_factory.create_aliases()
 
         self.issues_rev = {}
+
+
+    def id_generator(self):
+        while True:
+            issue_id = id_generator()
+            issue_alias = issue_id[:5]
+            try:
+                self.__alias.get(issue_alias)
+            except FileNotFoundError:
+                return issue_id
 
 
     def __check_resurrect(self, st, k, f, t):
