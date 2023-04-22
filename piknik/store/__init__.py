@@ -28,7 +28,6 @@ class MsgDir(HexDir):
     def get(self, k):
         u = uuid.UUID(k)
         fp = self.to_filepath(u.hex)
-        f = None
         f = open(fp, 'rb')
         r = f.read()
         f.close()
@@ -44,6 +43,41 @@ class MsgDir(HexDir):
         u = uuid.UUID(k)
         logg.debug('putting {}'.format(u.bytes.hex()))
         return self.add(u.bytes, v)
+
+
+class AliasDir:
+
+    def __init__(self, root_path):
+        self.dir = root_path
+        os.makedirs(self.dir, exist_ok=True)
+
+
+    def get(self, k):
+        fp = os.path.join(self.dir, k)
+        f = open(fp, 'rb')
+        r = f.read()
+        f.close()
+        u = uuid.UUID(r.hex())
+        return str(u)
+
+
+    def key_to_string(self, k):
+        u = uuid.UUID(bytes=k)
+        return u.bytes.hex()
+
+
+    def put(self, k, v):
+        u = uuid.UUID(v)
+        fp = os.path.join(self.dir, k)
+        logg.debug('putting {} {}'.format(u.bytes.hex(), fp))
+        f = open(fp, 'wb')
+        f.write(u.bytes)
+        f.close()
+
+
+    def purge(self, k):
+        fp = os.path.join(self.dir, k)
+        os.remove(fp)
 
 
 class FileStoreFactory:
@@ -83,3 +117,8 @@ class FileStoreFactory:
     def create_messages(self):
         d = os.path.join(self.directory, '.msg')
         return MsgDir(d)
+
+
+    def create_aliases(self):
+        d = os.path.join(self.directory, '.alias')
+        return AliasDir(d)

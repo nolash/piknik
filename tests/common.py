@@ -29,6 +29,10 @@ class TestMsgStore:
         raise FileNotFoundError(k)
 
 
+    def purge(self, k):
+        del self.store[k]
+
+
 class TestStates:
 
     def create_states(self, *args, **kwargs):
@@ -40,6 +44,10 @@ class TestStates:
 
 
     def create_messages(self, *args):
+        return TestMsgStore()
+
+
+    def create_aliases(self, *args):
         return TestMsgStore()
 
 

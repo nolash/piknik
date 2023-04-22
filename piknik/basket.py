@@ -3,6 +3,7 @@ import logging
 
 # external imports
 import shep
+from shep.error import StateItemNotFound
 
 # local imports
 from .error import DeadIssue
@@ -34,6 +35,8 @@ class Basket:
         self.__msg = state_factory.create_messages()
         self.__msg_wrap = message_wrapper
 
+        self.__alias = state_factory.create_aliases()
+
         self.issues_rev = {}
 
 
@@ -45,19 +48,28 @@ class Basket:
 
     def add(self, issue):
         issue_id = str(issue.id)
-        self.state.put(issue_id, contents=str(issue))
+        j = str(issue)
+        self.state.put(issue_id, contents=j)
         self.__tags.put(issue_id)
+        if issue.alias != None:
+            self.__alias.put(issue.alias, issue.id)
         return issue_id
 
 
     def get(self, issue_id):
+        logg.debug("basked issue get {}".format(issue_id))
         r = self.state.get(issue_id)
+        if r == None:
+            aliased_issue_id = self.__alias.get(issue_id)
+            r = self.state.get(aliased_issue_id)
+            logg.debug("resolved issue {} from alias '{}': {}".format(aliased_issue_id, issue_id, r))
         o = Issue.from_str(r)
         return o
 
 
     def get_state(self, issue_id):
-        v = self.state.state(issue_id)
+        o = self.get(issue_id)
+        v = self.state.state(o.id)
         return self.state.name(v)
 
 
@@ -86,7 +98,10 @@ class Basket:
 
 
     def state_finish(self, issue_id):
-        self.state.move(issue_id, self.state.FINISHED)
+        o = self.get(issue_id)
+        self.state.move(o.id, self.state.FINISHED)
+        if o.alias != None:
+            self.__alias.purge(o.alias)
 
 
     def advance(self, issue_id):
@@ -143,7 +158,8 @@ class Basket:
 
 
     def tags(self, issue_id):
-        v = self.__tags.state(issue_id)
+        o = self.get(issue_id)
+        v = self.__tags.state(o.id) #issue_id)
         r = self.__tags.elements(v)
         if r == 'UNTAGGED':
             r = '(' + r + ')'
@@ -151,14 +167,15 @@ class Basket:
 
 
     def __get_msg(self, issue_id, envelope_callback=None, message_callback=None, post_callback=None):
-        r = self.state.get(issue_id)
-        o = Issue.from_str(r)
+        #r = self.state.get(issue_id)
+        o = self.get(issue_id)
+        #o = Issue.from_str(r)
         try:
-            v = self.__msg.get(issue_id)
+            v = self.__msg.get(o.id)
             m = IssueMessage.parse(o, v.decode('utf-8'), envelope_callback=envelope_callback, message_callback=message_callback, post_callback=post_callback)
             return m
         except FileNotFoundError as e:
-            logg.debug('instantiating new message log for {} {}'.format(issue_id, e))
+            logg.debug('instantiating new message log for {} {}'.format(o.id, e))
 
         return IssueMessage(o)
 
@@ -168,47 +185,54 @@ class Basket:
  
     
     def dep(self, issue_id, dependency_issue_id):
-        r = self.state.get(issue_id)
-        self.state.get(dependency_issue_id)
-        o = Issue.from_str(r)
+        #r = self.state.get(issue_id)
+        o = self.get(issue_id)
+        #self.state.get(dependency_issue_id)
+        self.get(dependency_issue_id)
+        #o = Issue.from_str(r)
         r = o.dep(dependency_issue_id)
-        self.state.replace(issue_id, contents=str(o))
+        self.state.replace(o.id, contents=str(o))
         return r
 
 
     def undep(self, issue_id, dependency_issue_id):
-        r = self.state.get(issue_id)
-        self.state.get(dependency_issue_id)
-        o = Issue.from_str(r)
+        #r = self.state.get(issue_id)
+        o = self.get(issue_id)
+        #self.state.get(dependency_issue_id)
+        self.get(dependency_issue_id)
+        #o = Issue.from_str(r)
         r = o.undep(dependency_issue_id)
-        self.state.replace(issue_id, contents=str(o))
+        self.state.replace(o.id, contents=str(o))
         return r
 
 
     def assign(self, issue_id, identity):
-        r = self.state.get(issue_id)
-        o = Issue.from_str(r)
+        #r = self.state.get(issue_id)
+        o = self.get(issue_id)
+        #o = Issue.from_str(r)
         v = Identity(identity)
         r = o.assign(v)
-        self.state.replace(issue_id, contents=str(o))
+        self.state.replace(o.id, contents=str(o))
         return r
 
 
     def owner(self, issue_id, identity):
-        r = self.state.get(issue_id)
-        o = Issue.from_str(r)
+        #r = self.state.get(issue_id)
+        o = self.get(issue_id)
+        #o = Issue.from_str(r)
         v = Identity(identity)
         r = o.set_owner(v)
-        self.state.replace(issue_id, contents=str(o))
+        self.state.replace(o.id, contents=str(o))
         return r
 
 
     def unassign(self, issue_id, identity):
-        r = self.state.get(issue_id)
-        o = Issue.from_str(r)
+        #r = self.state.get(issue_id)
+        o = self.get(issue_id)
+        #o = Issue.from_str(r)
         v = Identity(identity)
         r = o.unassign(v)
-        self.state.replace(issue_id, contents=str(o))
+        self.state.replace(o.id, contents=str(o))
         return r
 
 

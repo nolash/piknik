@@ -8,6 +8,7 @@ ctx = None
 
 
 def subparser(argp):
+    argp.add_argument('-a', '--alias', dest='alias', type=str, help='alias string to refer to issue to with cli commands')
     argp.add_argument('title', type=str, nargs='*', help='issue title')
     return argp
 
@@ -24,6 +25,6 @@ def main():
         if title != '':
             title += ' '
         title += s
-    o = Issue(title)
+    o = Issue(title, alias=ctx.alias)
     v = ctx.basket.add(o)
     sys.stdout.write(v + '\n')

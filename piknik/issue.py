@@ -11,7 +11,7 @@ from piknik.error import ExistsError
 
 class Issue:
 
-    def __init__(self, title, issue_id=None):
+    def __init__(self, title, issue_id=None, alias=None):
         if issue_id == None:
             issue_id = str(uuid.uuid4())
         self.id = issue_id
@@ -19,6 +19,7 @@ class Issue:
         self.assigned = []
         self.assigned_time = []
         self.dependencies = []
+        self.alias = alias
         self.owner_idx = 0
 
 
@@ -36,6 +37,7 @@ class Issue:
                 o.owner_idx = i
         for v in r['dependencies']:
             o.dep(v)
+        o.alias = r['alias']
         return o
 
 
@@ -99,14 +101,15 @@ class Issue:
                 return True
 
         raise UnknownIdentityError(identity)
-        
 
+    
     def __str__(self):
         o = {
             'id': str(self.id),
             'title': self.title,
             'assigned': {},
             'dependencies': self.dependencies,
+            'alias': self.alias,
             'owner': None,
             }
 

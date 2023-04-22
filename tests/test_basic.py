@@ -116,5 +116,16 @@ class TestBasic(unittest.TestCase):
         self.assertEqual(len(r), 7)
 
 
+    def test_alias(self):
+        o = Issue('The first issue', alias="first")
+        issue_id = o.id
+        v = self.b.add(o)
+        o = self.b.get("first")
+        self.assertEqual(o.id, issue_id)
+        self.b.state_finish(issue_id)
+        with self.assertRaises(FileNotFoundError):
+            o = self.b.get("first")
+
+
 if __name__ == '__main__':
     unittest.main()
