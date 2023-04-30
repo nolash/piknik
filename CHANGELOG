@@ -1,3 +1,5 @@
+- 0.3.15:
+	* Add man page
 - 0.3.14:
 	* Make remaining basket methods work with aliases
 - 0.3.13:
