@@ -31,4 +31,5 @@ f.close()
 setup(
         install_requires=requirements,
         tests_require=test_requirements,
+        data_files=[("man/man1", ["man/man1/piknik.1"],)],
     )

@@ -1,3 +1,5 @@
+- 0.3.3
+	* Add man page
 - 0.3.2
 	* Add handler for setting pending state
 	* Upgrade shep to handle empty tag directories when transferring (empty) state directories over git
