@@ -98,7 +98,9 @@ def main():
         renderer = m.Renderer(ctx.basket, wrapper=verifier, accumulator=accumulator, states_include=ctx.show_states, states_skip=states_skip)
 
         renderer.apply_begin()
+        renderer.apply_issue_pre(state, issue, tags)
         renderer.apply_issue(state, issue, tags)
+        renderer.apply_issue_post(state, issue, tags)
         renderer.apply_end()
         
         reset_accumulator()

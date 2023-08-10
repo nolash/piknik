@@ -89,6 +89,10 @@ class Renderer:
         pass
 
 
+    def apply_issue_mid(self, state, issue, tags, accumulator=None):
+        pass
+
+
     def apply_issue(self, state, issue, tags, accumulator=None):
 
         def envelope_callback(envelope, envelope_type):

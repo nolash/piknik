@@ -64,11 +64,13 @@ class Accumulator:
                 self.issue = v
                 self.msg = ol(_id='message_list')
                 self.issues.append(v_id[2:])
+            elif v_id[:4] == 'd_c_':
+                self.issue.add(v)
             elif v_id[:2] == 'm_':
                 if self.envelope != None:
                     self.msg.add(self.envelope)
                 #self.envelope_content = v
-                self.envelope = li()
+                self.envelope = li(v)
             elif v_id[:4] == 'd_m_':
                 self.envelope.add(v)
         else:
@@ -151,6 +153,9 @@ class Renderer(BaseRenderer):
 
         self.add(r)
 
+        r = self.apply_issue_mid(state, issue, tags, accumulator=accumulator)
+        self.add(r)
+
         super(Renderer, self).apply_issue(state, issue, tags, accumulator=accumulator)
 
     
@@ -177,6 +182,7 @@ class Renderer(BaseRenderer):
        
 
     def apply_message_part(self, state, issue, tags, envelope, message, message_date, message_content, accumulator=None):
+        logg.debug('env {}'.format(envelope.sender))
         r = None
         if message_content['filename'] != None:
             s = 'data:{}/{};base64,{}'.format(
@@ -212,3 +218,8 @@ class Renderer(BaseRenderer):
     def apply_end(self, accumulator=None):
         self.add(())
         return None
+
+
+    def apply_issue_mid(self, state, issue, tags, accumulator=None):
+        logg.debug('>>>>>>>> foo')
+        return h2('comments', _id='d_c_{}'.format(issue.id))

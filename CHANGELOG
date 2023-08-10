@@ -1,3 +1,6 @@
+- 0.3.17:
+	* Add comments heading for comments section in html
+	* Reinstate sender information in html message render
 - 0.3.16:
 	* Add pypi project description
 - 0.3.15:
