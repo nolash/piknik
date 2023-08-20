@@ -179,7 +179,13 @@ class Basket:
 
     def tags(self, issue_id):
         o = self.get(issue_id)
-        v = self.__tags.state(o.id)
+        v = None
+        try:
+            v = self.__tags.state(o.id)
+        except StateItemNotFound:
+            self.__tags.put(o.id)
+            #self.__tags.set(o.id, self.__tags.UNTAGGED)
+            v = self.__tags.state(o.id)
         r = self.__tags.elements(v)
         if r == 'UNTAGGED':
             r = '(' + r + ')'
