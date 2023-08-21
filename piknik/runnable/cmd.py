@@ -44,10 +44,12 @@ except ValueError:
 arg, unknown = argp.parse_known_args(strargs)
 
 m = None
+create = False
 if arg.cmd == 'show':
     m = importlib.import_module('piknik.cli.show')
 elif arg.cmd == 'add':
     m = importlib.import_module('piknik.cli.add')
+    create = True
 elif arg.cmd == 'mod':
     m = importlib.import_module('piknik.cli.mod')
 elif arg.cmd == 'comment':
@@ -64,7 +66,7 @@ arg = argp.parse_args(sys.argv[1:])
 if arg.v:
     logg.setLevel(logging.DEBUG)
 
-m.ctx = Context(arg, m.assembler)
+m.ctx = Context(arg, m.assembler, create=create)
 
 
 def main():

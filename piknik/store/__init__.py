@@ -82,10 +82,13 @@ class AliasDir:
 
 class FileStoreFactory:
 
-    def __init__(self, directory=None):
+    def __init__(self, directory=None, create=True):
         if directory == None:
             directory = os.path.join('.', '.piknik')
         self.directory = directory
+        if not create:
+            if not os.path.exists(self.directory):
+                raise FileNotFoundError(self.directory)
 
 
     def create_states(self, logger=None, default_state=None, verifier=None):
