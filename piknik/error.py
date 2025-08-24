@@ -12,3 +12,7 @@ class UnknownIdentityError(Exception):
 
 class VerifyError(Exception):
     pass
+
+
+class SignError(Exception):
+    pass

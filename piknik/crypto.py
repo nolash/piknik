@@ -10,6 +10,7 @@ import gnupg
 # local imports
 from piknik.error import VerifyError
 from piknik.error import UnknownIdentityError
+from piknik.error import SignError
 from piknik.wrap import Wrapper
 
 logg = logging.getLogger(__name__)
@@ -52,6 +53,8 @@ class PGPSigner(Wrapper):
         self.set_from(msg, passphrase=passphrase)
         v = msg.as_string()
         sig = self.gpg.sign(v, keyid=self.default_key, detach=True, passphrase=self.passphrase)
+        if sig.status != 'signature created':
+            raise SignError()
         ms.set_payload(str(sig))
     
         m.attach(msg)
