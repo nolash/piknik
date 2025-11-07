@@ -50,9 +50,11 @@ class PGPSigner(Wrapper):
         fn = '{}.asc'.format(msg.get('X-Piknik-Msg-Id'))
         ms.add_header('Content-Disposition', 'attachment', filename=fn)
 
+        if passphrase == None:
+            passphrase = self.passphrase
         self.set_from(msg, passphrase=passphrase)
         v = msg.as_string()
-        sig = self.gpg.sign(v, keyid=self.default_key, detach=True, passphrase=self.passphrase)
+        sig = self.gpg.sign(v, keyid=self.default_key, detach=True, passphrase=passphrase)
         if sig.status != 'signature created':
             raise SignError()
         ms.set_payload(str(sig))
