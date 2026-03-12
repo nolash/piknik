@@ -47,6 +47,7 @@ def reset_accumulator():
 def subparser(argp):
     argp.add_argument('-r', '--renderer', type=str, default='default', help='Renderer module for output')
     argp.add_argument('-s', '--state', type=str, action='append', default=[], help='Limit results to state(s)')
+    argp.add_argument('-k', '--trusted-key', dest='trusted_key',  type=str, action='append', default=[], help='Key to trust, even if revoked')
     argp.add_argument('--show-finished', dest='show_finished', action='store_true', help='Include finished issues')
     argp.add_argument('--reverse', action='store_true', help='Sort comments by oldest first')
     return argp
@@ -54,6 +55,14 @@ def subparser(argp):
 
 def assembler(o, arg):
     o.renderer = arg.renderer
+    o.trust = []
+    for v in arg.trusted_key:
+        l = len(v)
+        if l < 8:
+            raise ValueError('Minimum 4 bytes match on trust key')
+        elif int(l) not in [8, 16, 40]:
+            raise ValueError('Invalid fingerprint length')
+        o.trust.append(v.upper())
 
 
 def main():
@@ -94,7 +103,7 @@ def main():
         issue = ctx.basket.get(issue_id)
         tags = ctx.basket.tags(issue_id)
         state = ctx.basket.get_state(issue_id)
-        verifier = PGPSigner(home_dir=ctx.gpg_home, skip_verify=False)
+        verifier = PGPSigner(home_dir=ctx.gpg_home, skip_verify=False, keytrust=ctx.trust)
         renderer = m.Renderer(ctx.basket, wrapper=verifier, accumulator=accumulator, states_include=ctx.show_states, states_skip=states_skip)
 
         renderer.apply_begin()
