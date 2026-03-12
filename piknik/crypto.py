@@ -19,7 +19,7 @@ logging.getLogger('gnupg').setLevel(logging.ERROR)
 
 class PGPSigner(Wrapper):
 
-    def __init__(self, home_dir=None, dump_dir=None, default_key=None, passphrase=None, use_agent=False, skip_verify=False):
+    def __init__(self, home_dir=None, dump_dir=None, default_key=None, passphrase=None, use_agent=False, skip_verify=False, keytrust=[]):
         super(PGPSigner, self).__init__(dump_dir=dump_dir)
         self.gpg = gnupg.GPG(gnupghome=home_dir)
         self.default_key = default_key
@@ -27,6 +27,7 @@ class PGPSigner(Wrapper):
         self.use_agent = use_agent
         self.sign_material = None
         self.pre_buffer = []
+        self.keytrust = keytrust
         self.__skip_verify = skip_verify
 
 
@@ -50,9 +51,11 @@ class PGPSigner(Wrapper):
         fn = '{}.asc'.format(msg.get('X-Piknik-Msg-Id'))
         ms.add_header('Content-Disposition', 'attachment', filename=fn)
 
+        if passphrase == None:
+            passphrase = self.passphrase
         self.set_from(msg, passphrase=passphrase)
         v = msg.as_string()
-        sig = self.gpg.sign(v, keyid=self.default_key, detach=True, passphrase=self.passphrase)
+        sig = self.gpg.sign(v, keyid=self.default_key, detach=True, passphrase=passphrase)
         if sig.status != 'signature created':
             raise SignError()
         ms.set_payload(str(sig))
@@ -98,7 +101,18 @@ class PGPSigner(Wrapper):
         os.unlink(fp)
         
         if r.key_status != None:
-            raise VerifyError('unexpeced key status {}'.format(r.key_status))
+            if 'revoked' in r.key_status:
+                have = False
+                for k in self.keytrust:
+                    key_used_part = r.key_id[(len(k)*-1):]
+                    logg.debug('check used revoked key {} matchpart {} against {}'.format(r.key_id, key_used_part, k))
+                    if key_used_part == k:
+                        have = True
+                        break
+                if not have:
+                    raise VerifyError('revoked key {} not in accept list'.format(r.key_id))
+            else:
+                raise VerifyError('unexpected key status {}'.format(r.key_status))
         if r.status == 'no public key':
             logg.warning('public key for {} not found, cannot verify'.format(r.fingerprint))
         elif r.status != 'signature valid':
