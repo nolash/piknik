@@ -1,5 +1,6 @@
 - 0.3.18:
-	* 
+	* Enable prompt for signing password if missing
+	* Allow explicit accept signatures from revoked keys
 	* Avoid spurious directory creations
 	* Cancel message signature if adding is not successful
 	* Enable signatures

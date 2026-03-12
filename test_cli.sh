@@ -16,7 +16,7 @@ fp=`gpg --list-keys --homedir $g testuser 2> /dev/null | awk '/^ / {print $1;}'`
 i_foo=`python piknik/runnable/cmd.py -d $d add "foo"`
 i_bar=`python piknik/runnable/cmd.py -d $d add "bar"`
 
-python piknik/runnable/cmd.py mod -d $d --accept -i $i_foo 
+#python piknik/runnable/cmd.py mod -d $d --accept -i $i_foo 
 python piknik/runnable/cmd.py mod -d $d --finish -i $i_bar
 python piknik/runnable/cmd.py comment -d $d -s $fp -x bazbazbaz -i $i_foo
 python piknik/runnable/cmd.py show -d $d 
@@ -26,6 +26,3 @@ python piknik/runnable/cmd.py show -d $d -r html -i $i_bar
 set +x
 set +e
 set +a
-
-
-
