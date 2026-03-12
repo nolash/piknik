@@ -9,7 +9,7 @@ ctx = None
 
 def subparser(argp):
     argp.add_argument('-s', '--sign-as', dest='s', type=str, help='PGP fingerprint of key to sign issue update with')
-    argp.add_argument('-x', '--text', dest='x', type=str, action='append', default=[], help='Add literal message text')
+    argp.add_argument('-x', '--text', dest='x', type=str, help='Add literal message text')
     argp.add_argument('-y', '--file', dest='y', type=str, action='append', default=[], help='Add arbitrary file as content')
     return argp
 
